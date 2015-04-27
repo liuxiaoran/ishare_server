@@ -24,9 +24,9 @@ class UpdateContact extends CI_Controller
             echo "<br>";
 
             foreach($addContactArray as $val) {
-                $query = $this->db->query("select * from contacts where host_id='$phone' and contact_id='$val')");
-                if($query->row_count() === 0) {
-                    $this->db->query("insert into contacts (host_id, contact_id) values('$phone', '$val')");
+                $query = $this->db->query("select * from contacts where host_phone='$phone' and contact_phone='$val'");
+                if($query->num_rows() === 0) {
+                    $this->db->query("insert into contacts (host_phone, contact_phone) values('$phone', '$val')");
                 }
             }
         }
@@ -38,17 +38,11 @@ class UpdateContact extends CI_Controller
             echo "<br>";
 
             foreach($delContactArray as $val) {
-                $this->db->query("delete from contacts where host_id='$id' and contact_id='$val')");
+                $this->db->query("delete from contacts where host_phone='$phone' and contact_phone='$val'");
             }
         }
 
         $this->db->close();
-//    $query = $this->db->query($sql);
-//    $result = $query->result();
-//    foreach($result as $val) {
-//        echo $val->user_id."  ".$val->key;
-//        echo "<br>";
-//    }
     }
 }
 ?>
