@@ -64,10 +64,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => '',
-	'password' => '',
-	'database' => '',
+	'hostname' => 'rdspg56xaii8gqh3vhowh.mysql.rds.aliyuncs.com',
+	'username' => 'ishare',
+	'password' => 'Ishare888',
+	'database' => 'ishare',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

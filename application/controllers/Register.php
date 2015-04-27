@@ -5,33 +5,31 @@ class Register extends CI_Controller {
 
 	public function index() {
 		if(array_key_exists('id', $_GET) && array_key_exists('pw', $_GET)) {
-		  $id=$_GET['id'];
-  	  $pw=$_GET['pw'];
-		} else {
-			echo "1:param null";
-			exit;	
-		}
-    
-    $con = mysql_connect("localhost", "ishare", "123456");
-    if(!$con){
-        die('1' . mysql_error());
-    } else {
-        mysql_select_db("ishare", $con);
-        $query = sprintf("select * from users where id='%s'", $id);
-        $result = mysql_query($query);
-        if(mysql_num_rows($result) === 0) {
-        	$pw=md5($pw);
-            mysql_query("insert into users values ('$id', '$pw')");
+            $id=$_GET['id'];
+            $pw=$_GET['pw'];
         } else {
-            echo "1:exist";
+            $ret = array('r'=>1, 'v'=>'null param');
+            echo json_encode($ret);
+            exit;
         }
-    }
-    mysql_close($con);
-    
-    echo "<br><br>reg end";
+
+        $this->load->database();
+        $sql = sprintf("select * from users where id='%s'", $id);
+        $query = $this->db->query($sql);
+        if(count($query->result()) === 0) {
+            $pw=md5($pw);
+            $key = md5($id + time());
+            $this->db->query("insert into users(id, pw, session_key) values ('$id', '$pw', '$key')");
+
+            $ret = array('r'=>'0', 'v'=>'success', 'key'=>$key);
+            echo json_encode($ret);
+        } else {
+            $ret = array('r'=>2, 'v'=>'exist');
+            echo json_encode($ret);
+        }
+        $this->db->close();
 	}
 }
 
 ?>
-
 
