@@ -9,8 +9,8 @@ class UpdateContact extends CI_Controller
         $phone = $_GET['phone'];
         $key = $_GET['key'];
 
-        $this->load->model("VerifySession");
-        if(!$this->VerifySession->verify($phone, $key)) {
+        $this->load->model('verify_session');
+        if(!$this->verify_session->verify($phone, $key)) {
             $ret = array('r'=>'2', 'v'=>"not login");
             echo json_encode($ret);
         }
