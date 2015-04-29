@@ -13,7 +13,7 @@ class PublishShareItem extends CI_Controller{
 
         $this->load->model('verify_session');
         if(!$this->verify_session->verify($phone, $key)) {
-            $ret = array('r'=>'2', 'v'=>"not login");
+            $ret = array('status'=>'2', 'message'=>"not login");
             echo json_encode($ret);
         }
 
@@ -36,7 +36,7 @@ class PublishShareItem extends CI_Controller{
         $this->shareToFriend($phone, $retId);
         $this->db->close();
 
-        $ret =  array ("r"=>0, "v"=> "success");
+        $ret =  array ("status"=>0, "message"=> "success");
     }
 
     private function shareToFriend($phone, $shareId) {
@@ -57,7 +57,6 @@ class PublishShareItem extends CI_Controller{
 
                     if($listLength > 200) {
                         $listLength = 200;
-                        echo "pos : ".strpos($discoveryList, ':');
                         $discoveryList = substr($discoveryList, strpos($discoveryList, ':') + 1);
                     }
 
