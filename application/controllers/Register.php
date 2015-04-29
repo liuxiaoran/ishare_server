@@ -17,7 +17,7 @@ class Register extends CI_Controller {
         $sql = sprintf("select * from users where phone='%s'", $phone);
         $query = $this->db->query($sql);
         if(count($query->result()) === 0) {
-            $pw=md5($pw);
+
             $key = md5($phone + time());
             $this->db->query("insert into users(phone, pw, session_key) values ('$phone', '$pw', '$key')");
 
