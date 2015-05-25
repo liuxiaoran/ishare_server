@@ -22,7 +22,7 @@ class Query_Card_By_Phone_C extends CI_Controller
         Log_Util::log_param($_GET, __CLASS__);
 
         $ret = array();
-        if ($this->verify()) {
+        if ($this->User_m->verify_session_key($_GET)) {
             $phone = array_key_exists('$phone', $_GET) ? $_GET['phone'] : null;
             $page_num = array_key_exists("page_num", $_GET) ? $_GET["page_num"] : 1;
             $page_size = array_key_exists("page_size", $_GET) ? $_GET["page_size"] : 10;
@@ -48,15 +48,4 @@ class Query_Card_By_Phone_C extends CI_Controller
         echo json_encode($ret);
     }
 
-    public function verify()
-    {
-        $phone = array_key_exists("phone", $_GET) ? $_GET["phone"] : null;//$_GET["phone"];
-        $key = array_key_exists("key", $_GET) ? $_GET["key"] : null;//$_GET["key"];
-
-        if ($this->User_m->verify_session_key($phone, $key)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

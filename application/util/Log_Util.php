@@ -10,11 +10,6 @@ date_default_timezone_set("PRC");
 class Log_Util
 {
 
-    public function __construct()
-    {
-        echo '__construct';
-    }
-
     public static function log_param($data, $label)
     {
         $message = date("[Y-m-d H:i:s]") . $label . ': ';

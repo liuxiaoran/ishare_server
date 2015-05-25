@@ -22,8 +22,9 @@ class Update_Card_C extends CI_Controller
         Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if (!$this->verify()) {
-            $ret = array('status' => '2', 'message' => "not login");
+        if (!$this->User_m->verify_session_key($_GET)) {
+            $ret['status'] = 2;
+            $ret['message'] = 'not login';
         } else {
             $card = $this->get_card_data();
             $message = $this->check_card_data($card);
@@ -45,18 +46,6 @@ class Update_Card_C extends CI_Controller
         Log_Util::log_info($ret, __CLASS__);
 
         echo json_encode($ret);
-    }
-
-    public function verify()
-    {
-        $phone = array_key_exists("phone", $_POST) ? $_POST["phone"] : null;
-        $key = array_key_exists("key", $_POST) ? $_POST["key"] : null;
-
-        if ($this->User_m->verifyKey($phone, $key)) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public function get_card_data()

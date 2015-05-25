@@ -89,7 +89,7 @@ class Owner_location_m extends CI_Model
         try {
             $offset = ($pageNum - 1) * $pageSize;
             $sql = "SELECT item_id, longitude, latitude, location, time,"
-                . " ((POWER(MOD(ABS(longitude - $lng),360),2) + POWER(ABS(latitude - $lat),2)) * discount) AS value,"
+                . " ((POWER(MOD(ABS(longitude - $lng),360),2) + POWER(ABS(latitude - $lat),2)) * discount) AS composite,"
                 . " count(DISTINCT item_id)"
                 . " from owner_location";
 //            $sql = $sql." WHERE longitude > ".($lng + $range)." AND longitude < ".($lng - $range);
@@ -100,7 +100,7 @@ class Owner_location_m extends CI_Model
 //            if($trade_type != -1) {
 //                $sql = $sql." AND trade_type = $trade_type";
 //            }
-            $sql = $sql . " GROUP by item_id ORDER by LIMIT $offset, $pageSize";
+            $sql = $sql . " GROUP by item_id ORDER by composite LIMIT $offset, $pageSize";
 
             Log_Util::log_sql($sql, __CLASS__);
 
@@ -110,11 +110,11 @@ class Owner_location_m extends CI_Model
             foreach ($query->result_array() as $row) {
                 $location = array();
                 $location['item_id'] = $row['item_id'];
-                $location['owner_longitude'] = $row['longitude'];
-                $location['owner_latitude'] = $row['latitude'];
-                $location['available_addr'] = $row['location'];
-                $location['available_time'] = $row['time'];
-                $location['owner_distance'] =
+                $location['longitude'] = $row['longitude'];
+                $location['latitude'] = $row['latitude'];
+                $location['location'] = $row['location'];
+                $location['time'] = $row['time'];
+                $location['distance'] =
                     Distance_Util::get_kilometers_between_points($lng, $lat, $location['longitude'], $location['latitude']);
                 array_push($data, $location);
             }
@@ -179,8 +179,8 @@ class Owner_location_m extends CI_Model
         try {
             $offset = ($pageNum - 1) * $pageSize;
             $sql = "SELECT item_id, longitude, latitude, location, time, count(DISTINCT item_id)"
-                . " FROM owner_location";
-//            $sql = $sql." WHERE longitude > ".($lng + $range)." AND longitude < ".($lng - $range);
+                . " FROM owner_location WHERE 1 = 1";
+//            $sql = $sql." AND longitude > ".($lng + $range)." AND longitude < ".($lng - $range);
 //            $sql = $sql." AND latitude < ".($lat + $range)." AND latitude > ".($lat - $range);
             if ($keyword != null) {
                 $sql = $sql . " AND search LIKE '%" . $keyword . "%'";
@@ -188,7 +188,7 @@ class Owner_location_m extends CI_Model
             if ($trade_type != -1) {
                 $sql = $sql . " AND trade_type = $trade_type";
             }
-            $sql = $sql . " GROUP by item_id ORDER BY discount LIMIT $offset, $pageSize";
+            $sql = $sql . " GROUP BY item_id ORDER BY discount LIMIT $offset, $pageSize";
 
             Log_Util::log_sql($sql, __CLASS__);
 

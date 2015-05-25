@@ -22,7 +22,7 @@ class Query_Card_Sort_Composite_C extends CI_Controller
         Log_Util::log_param($_GET, __CLASS__);
 
         $ret = array();
-        if (!$this->verify()) {
+        if (!$this->User_m->verify_session_key($_GET)) {
             $ret['status'] = 2;
             $ret['message'] = 'not login';
             $ret['data'] = null;
@@ -50,15 +50,6 @@ class Query_Card_Sort_Composite_C extends CI_Controller
         Log_Util::log_info($ret, __CLASS__);
 
         echo json_encode($ret);
-    }
-
-    public function verify()
-    {
-        $phone = array_key_exists("phone", $_GET) ? $_GET["phone"] : null;
-        $key = array_key_exists("key", $_GET) ? $_GET["key"] : null;
-
-        return $this->User_m->verify_session_key($phone, $key);
-
     }
 
     public function check_data($longitude, $latitude)

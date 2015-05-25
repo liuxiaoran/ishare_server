@@ -21,7 +21,7 @@ class Query_Location_C extends CI_Controller
         Log_Util::log_param($_GET, __CLASS__);
 
         $ret = array();
-        if ($this->verify()) {
+        if ($this->User_m->verify_session_key($_GET)) {
             $item_id = array_key_exists("item_id", $_GET) ? $_GET["item_id"] : null;
             if ($item_id != null) {
                 $ret['status'] = 0;
@@ -41,11 +41,4 @@ class Query_Location_C extends CI_Controller
         echo json_encode($ret);
     }
 
-    public function verify()
-    {
-        $phone = array_key_exists("phone", $_GET) ? $_GET["phone"] : null;
-        $key = array_key_exists("key", $_GET) ? $_GET["key"] : null;
-
-        return $this->User_m->verify_session_key($phone, $key);
-    }
 }

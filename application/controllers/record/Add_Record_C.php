@@ -1,6 +1,5 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -22,7 +21,7 @@ class Add_Borrow_C extends CI_Controller
         Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if ($this->verify()) {
+        if ($this->User_m->verify_session_key($_GET)) {
             $record = $this->get_data();
             $message = $this->check_data($record);
             if ($message == null) {
@@ -42,19 +41,13 @@ class Add_Borrow_C extends CI_Controller
         echo json_encode($ret);
     }
 
-    public function verify()
-    {
-        $phone = array_key_exists("phone", $_POST) ? $_POST["phone"] : null;
-        $key = array_key_exists("key", $_POST) ? $_POST["key"] : null;
-
-        return $this->User_m->verify_session_key($phone, $key);
-    }
-
     public function get_data()
     {
         $record['open_id'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
         $record['card_id'] = array_key_exists("card_id", $_POST) ? $_POST["card_id"] : null;
-        $record['status'] = 2;//3=取消申请，2=申请借卡,1=归还,0=还款-1=借出，-2=同意借卡，-3=拒绝借卡
+        $record['status'] = 2;//，1=申请借卡，2=取消申请，3=未归还（确认拿卡），4=借卡人还卡，5=借卡人还款,
+        //-1=同意借卡，-2=拒绝借卡，3=卡主借出卡，-4=未付款（确认还卡），-5=卡主确认收款
+        //0=意外结束交易
         $record['apply_time'] = date("Y-m-d H:i:s");
     }
 

@@ -24,7 +24,7 @@ class Add_Chat_C extends CI_Controller
         Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if ($this->verify()) {
+        if ($this->User_m->verify_session_key($_GET)) {
             $chat = $this->get_chat_data();
             $message = $this->check_chat_data($chat);
             if ($message === null) {
@@ -80,14 +80,6 @@ class Add_Chat_C extends CI_Controller
             $message = 'time不能为空';
         }
         return $message;
-    }
-
-    public function verify()
-    {
-        $phone = array_key_exists("phone", $_POST) ? $_POST["phone"] : null;
-        $key = array_key_exists("key", $_POST) ? $_POST["key"] : null;
-
-        return $this->User_m->verify_session_key($phone, $key);
     }
 
     public function send_uni_cast($chat)

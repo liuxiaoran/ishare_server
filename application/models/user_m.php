@@ -12,20 +12,18 @@ class User_m extends CI_Model
 
     public function login($data)
     {
+        $result = null;
         try {
             $this->load->database();
             $sql = 'select * from users where phone=? and pw = ?';
-            $result = $this->db->query($sql, $data);
+            $query = $this->db->query($sql, $data);
+            $result = $query->row_array();
             $this->db->close();
         } catch (Exception $e) {
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }
 
-        if ($result->num_rows() === 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return $result;
     }
 
     public function get_session_key($open_id)
@@ -148,8 +146,11 @@ class User_m extends CI_Model
         return $row;
     }
 
-    public function verify_session_key($open_id, $key)
+    public function verify_session_key($data)
     {
+        $open_id = array_key_exists("phone", $data) ? $data["phone"] : null;
+        $key = array_key_exists("key", $data) ? $data["key"] : null;
+
         try {
             $this->load->database();
             $sql = "select open_id from users where phone = ? and session_key= ?";

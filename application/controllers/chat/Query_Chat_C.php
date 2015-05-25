@@ -22,7 +22,7 @@ class Query_Chat_C extends CI_Controller
         Log_Util::log_param($_GET, __CLASS__);
 
         $ret = array();
-        if ($this->verify()) {
+        if ($this->User_m->verify_session_key($_GET)) {
             $user = array_key_exists("user", $_GET) ? $_GET["user"] : null;
             $chat = array_key_exists("chat", $_GET) ? $_GET["chat"] : null;
             $time = array_key_exists("time", $_GET) ? $_GET["time"] : null;
@@ -61,11 +61,4 @@ class Query_Chat_C extends CI_Controller
         }
     }
 
-    public function verify()
-    {
-        $phone = array_key_exists("phone", $_GET) ? $_GET["phone"] : null;
-        $key = array_key_exists("key", $_GET) ? $_GET["key"] : null;
-
-        return $this->User_m->verify_session_key($phone, $key);
-    }
 }
