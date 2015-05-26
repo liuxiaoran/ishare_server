@@ -13,6 +13,7 @@ class Query_Record_C extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('User_m');
         $this->load->model('Record_m');
     }
 
@@ -54,5 +55,6 @@ class Query_Record_C extends CI_Controller
         if ($record['borrow_id'] == null && $record['lend_id'] == null) {
             $message = 'borrow_id, lend_id不能同时为空';
         }
+        return $message;
     }
 }
