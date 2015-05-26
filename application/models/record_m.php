@@ -55,6 +55,7 @@ class Record_m extends CI_Model
                         $record['owner_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['owner_longitude'], $record['owner_latitude']);
                     }
 
+                    $this->unset_location($record); // 撤销位置信息
                     array_push($records, $record);
                 }
             }
@@ -65,6 +66,29 @@ class Record_m extends CI_Model
         return $records;
     }
 
+    private function query_min_owner_distance($longitude, $latitude)
+    {
+
+    }
+
+
+    /**
+     * 撤去店的位置信息和卡主的位置信息
+     * @param $record
+     */
+    private function unset_location(& $record)
+    {
+        unset($record['shop_longitude']);
+        unset($record['shop_latitude']);
+        unset($record['owner_longitude']);
+        unset($record['owner_latitude']);
+    }
+
+    /**
+     * 通过id获取用户的资料
+     * @param $id
+     * @return mixed
+     */
     private function query_user_by_id($id)
     {
         $sql = "SELECT * FROM users WHERE open_id = $id";
