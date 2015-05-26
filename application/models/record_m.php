@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/../util/Distance_Util.php');
 
 /**
  * Created by PhpStorm.
@@ -27,9 +28,11 @@ class Record_m extends CI_Model
         $records = array();
         $borrow_id = $paras["borrow_id"];
         $lend_id = $paras["lend_id"];
-        $sql = "SELECT R.id, S.shop_name, S.discount, S.trade_type, R.status, R.borrow_id, R.lend_id"
+        $sql = "SELECT R.id, S.shop_name, S.shop_longitude, S.shop_latitude, S.discount, S.trade_type,"
+            . " R.status, R.borrow_id, R.lend_id, O.longitude AS owner_longitude, O.latitude AS owner_latitude"
             . " FROM ((record AS R JOIN share_items AS S ON R.card_id = S.id) JOIN owner_location AS O ON S.id = O.item_id)";
 
+        // 判断是获取借入卡记录还是借出卡记录
         if ($paras['borrow_id'] != null) {
             $sql = $sql . " WHERE R.borrow_id = $borrow_id";
         } else {
@@ -46,6 +49,12 @@ class Record_m extends CI_Model
                         $record['avatar'] = $this->query_user_by_id($record['lend_id'])['avatar'];
                     else
                         $record['avatar'] = $this->query_user_by_id($record['borrow_id'])['avatar'];
+
+                    if ($paras['longitude'] != null && $paras['latitude'] != null) { // 获取店的距离和卡的距离
+                        $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['shop_longitude'], $record['shop_latitude']);
+                        $record['owner_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['owner_longitude'], $record['owner_latitude']);
+                    }
+
                     array_push($records, $record);
                 }
             }
