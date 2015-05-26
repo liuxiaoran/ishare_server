@@ -13,7 +13,7 @@ class Update_User_C extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('User_M');
+        $this->load->model('User_m');
     }
 
     public function index()
@@ -21,14 +21,14 @@ class Update_User_C extends CI_Controller
         Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if (!$this->User_m->verify_session_key($_GET)) {
+        if (!$this->User_m->verify_session_key($_POST)) {
             $ret['status'] = 2;
             $ret['message'] = 'not login';
         } else {
             $user = $this->get_data();
             $message = $this->check_data($user);
             if ($message == null) {
-                if ($this->User_M->update_user_info($user)) {
+                if ($this->User_m->update_user_info($user)) {
                     $ret['status'] = 0;
                     $ret['message'] = 'success';
                 } else {
@@ -50,7 +50,7 @@ class Update_User_C extends CI_Controller
     {
         $user['open_id'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
         $user['phone'] = array_key_exists("phone", $_POST) ? $_POST["phone"] : null;
-        $user['nickname'] = array_key_exists("name", $_POST) ? $_POST["name"] : null;
+        $user['nickname'] = array_key_exists("nickname", $_POST) ? $_POST["nickname"] : null;
         $user['avatar'] = array_key_exists("avatar", $_POST) ? $_POST["avatar"] : null;
         $user['gender'] = array_key_exists("gender", $_POST) ? $_POST["gender"] : null;
 

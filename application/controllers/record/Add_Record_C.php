@@ -45,8 +45,9 @@ class Add_Borrow_C extends CI_Controller
     {
         $record['open_id'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
         $record['card_id'] = array_key_exists("card_id", $_POST) ? $_POST["card_id"] : null;
-        $record['status'] = 2;//，1=申请借卡，2=取消申请，3=未归还（确认拿卡），4=借卡人还卡，5=借卡人还款,
-        //-1=同意借卡，-2=拒绝借卡，3=卡主借出卡，-4=未付款（确认还卡），-5=卡主确认收款
+        $record['status'] = 2;
+        //1=申请借卡，2=取消申请，3=未归还（确认拿卡），4=借卡人还卡，5=借卡人还款,
+        //-1=同意借卡，-2=拒绝借卡，-3=卡主借出卡，-4=未付款（确认还卡），-5=卡主确认收款
         //0=意外结束交易
         $record['apply_time'] = date("Y-m-d H:i:s");
     }
