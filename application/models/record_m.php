@@ -34,9 +34,9 @@ class Record_m extends CI_Model
 
         // 判断是获取借入卡记录还是借出卡记录
         if ($paras['borrow_id'] != null) {
-            $sql = $sql . " WHERE R.borrow_id = $borrow_id";
+            $sql = $sql . " WHERE R.borrow_id = '$borrow_id'";
         } else {
-            $sql = $sql . " WHERE R.lend_id = $lend_id";
+            $sql = $sql . " WHERE R.lend_id = '$lend_id'";
         }
 
         try {
@@ -46,9 +46,9 @@ class Record_m extends CI_Model
                 foreach($query->result_array() as $record)
                 {
                     if ($paras['borrow_id'] != null) // 获取对方的头像
-                        $record['avatar'] = $this->query_user_by_id($record['lend_id'])['avatar'];
+                        $record['avatar'] = $this->query_user_by_id($record['lend_id'])->avatar;
                     else
-                        $record['avatar'] = $this->query_user_by_id($record['borrow_id'])['avatar'];
+                        $record['avatar'] = $this->query_user_by_id($record['borrow_id'])->avatar;
 
                     if ($paras['longitude'] != null && $paras['latitude'] != null) { // 获取店的距离和卡的距离
                         $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['shop_longitude'], $record['shop_latitude']);
@@ -91,10 +91,10 @@ class Record_m extends CI_Model
      */
     private function query_user_by_id($id)
     {
-        $sql = "SELECT * FROM users WHERE open_id = $id";
+        $sql = "SELECT * FROM users WHERE open_id = '$id'";
         $query = $this->db->query($sql);
 
-        return $query->row_array();
+        return $query->row();
     }
 
     public function query_records($borrow_id, $lend_id, $type)
@@ -209,7 +209,7 @@ class Record_m extends CI_Model
         $status = $record['status'];
         $time = date("Y-m-d H:i:s");
         try {
-            $sql = "UPDATE record SET status = $status";
+            $sql = "UPDATE record SET status = '$status'";
             $sql_time = "";
             switch ($status) {
                 case 5:
@@ -247,7 +247,7 @@ class Record_m extends CI_Model
                     break;
             }
 
-            $sql = $sql . $sql_time . " WHERE id = $id";
+            $sql = $sql . $sql_time . " WHERE id = '$id'";
             $this->db->query($sql);
             $this->db->close();
             $update_result = true;
@@ -265,7 +265,7 @@ class Record_m extends CI_Model
      */
     public function is_exist($id)
     {
-        $sql = "SELECT id FROM record WHERE id = $id";
+        $sql = "SELECT id FROM record WHERE id = '$id'";
         $query = $this->db->query($sql);
         $this->db->close();
         if ($query->num_rows() > 0)
