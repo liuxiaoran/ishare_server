@@ -24,14 +24,19 @@ class Login_C extends CI_Controller
         $user = $this->get_user_data();
         $message = $this->check_user_data($user);
         if ($message == null) {
-            if (!$this->User_m->login($user)) {
-                $ret['status'] = -1;
-                $ret['message'] = 'password error';
-            } else {
-                $ret['status'] = 0;
-                $ret['key'] = $this->User_m->get_session_key($user['phone']);
-                $ret['message'] = 'success';
+            $data = $this->User_m->login($user['open_id']);
+            if ($data == null) {
+                $this->User_m->add_user($user);
+                $data['phone'] = null;
+                $data['nickname'] = null;
+                $data['avatar'] = null;
+                $data['gender'] = null;
             }
+            $this->User_m->update_user_info($user);
+            $data['key'] = $this->User_m->get_session_key($user['open_id']);
+            $ret['status'] = 0;
+            $ret['message'] = 'success';
+            $ret['data'] = $data;
         } else {
             $ret['status'] = -1;
             $ret['message'] = $message;
@@ -44,28 +49,19 @@ class Login_C extends CI_Controller
 
     public function get_user_data()
     {
-        $user['phone'] = array_key_exists("phone", $_POST) ? $_POST["phone"] : null;
-        $user['pw'] = array_key_exists("password", $_POST) ? $_POST["password"] : null;
+        $user['open_id'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
+        $user['phone_type'] = array_key_exists("phone_type", $_POST) ? $_POST["phone_type"] : null;
 
         return $user;
-    }
-
-    public function getData()
-    {
-        $result = '';
-        foreach ($_POST as $key => $value) {
-            $result = $result . $key . '=' . $value . '&';
-        }
-        return $result;
     }
 
     public function check_user_data($user)
     {
         $message = null;
-        if ($user['phone'] == null) {
-            $message = 'phone 不能为空';
-        } else if ($user['pw'] == null) {
-            $message = 'pw 不能为空';
+        if ($user['open_id'] == null) {
+            $message = 'open_id 不能为空';
+        } else if ($user['phone_type'] == null) {
+            $message = 'phone_type 不能为空';
         }
         return $message;
     }

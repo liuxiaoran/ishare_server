@@ -10,14 +10,17 @@ require_once(dirname(__FILE__) . '/../util/Log_Util.php');
 class User_m extends CI_Model
 {
 
-    public function login($data)
+    public function login($open_id)
     {
         $result = null;
         try {
             $this->load->database();
-            $sql = 'select * from users where phone=? and pw = ?';
-            $query = $this->db->query($sql, $data);
-            $result = $query->row_array();
+            $sql = "select phone, nickname, avatar, gender from users where open_id='" . $open_id . "'";
+            Log_Util::log_sql($sql, __CLASS__);
+            $query = $this->db->query($sql);
+            if ($query->num_rows() > 0) {
+                $result = $query->row_array();
+            }
             $this->db->close();
         } catch (Exception $e) {
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
@@ -28,9 +31,9 @@ class User_m extends CI_Model
 
     public function get_session_key($open_id)
     {
-        $key = md5($open_id + time());
+        $key = md5($open_id . time());
         try {
-            $sql = 'update users set session_key = ? where phone = ?';
+            $sql = 'update users set session_key = ? where open_id = ?';
             $this->db->query($sql, array($key, $open_id));
         } catch (Exception $e) {
             $key = null;
@@ -76,20 +79,23 @@ class User_m extends CI_Model
     {
         $status = true;
         try {
-            $sql = "UPDATE users SET phone = " . $user['phone'];
-            if ($user['phone'] != null) {
+            $sql = "UPDATE users SET open_id = '" . $user['open_id'] . "'";
+            if (array_key_exists("phone_type", $user)) {
+                $sql = $sql . ", phone_type = '" . $user['phone_type'] . "'";
+            }
+            if (array_key_exists("phone", $user)) {
                 $sql = $sql . ", phone = '" . $user['phone'] . "'";
             }
-            if ($user['nickname'] != null) {
+            if (array_key_exists("nickname", $user)) {
                 $sql = $sql . ", nickname = '" . $user['nickname'] . "'";
             }
-            if ($user['avatar'] != null) {
+            if (array_key_exists("avatar", $user)) {
                 $sql = $sql . ", avatar = '" . $user['avatar'] . "'";
             }
-            if ($user['gender'] != null) {
+            if (array_key_exists("gender", $user)) {
                 $sql = $sql . ", gender = '" . $user['gender'] . "'";
             }
-            $sql = $sql . " WHERE phone = '" . $user['phone'] . "'";
+            $sql = $sql . " WHERE open_id = '" . $user['open_id'] . "'";
 
             $this->load->database();
             $this->db->query($sql);
@@ -148,23 +154,20 @@ class User_m extends CI_Model
 
     public function verify_session_key($data)
     {
-        $open_id = array_key_exists("phone", $data) ? $data["phone"] : null;
+        $open_id = array_key_exists("open_id", $data) ? $data["open_id"] : null;
         $key = array_key_exists("key", $data) ? $data["key"] : null;
 
         try {
             $this->load->database();
-            $sql = "select open_id from users where phone = ? and session_key= ?";
-            $result = $this->db->query($sql, array($open_id, $key));
+            $sql = "select open_id from users where open_id = '" . $open_id . "' and session_key= '" . $key . "'";
+            Log_Util::log_sql($sql, __CLASS__);
+            $result = $this->db->query($sql);
             $this->db->close();
         } catch (Exception $e) {
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
-        if ($result->num_rows() === 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return ($result->num_rows() === 1) ? true : false;
     }
 
     public function query_user($open_id)

@@ -60,8 +60,8 @@ class Update_User_C extends CI_Controller
     public function check_data($data)
     {
         $message = null;
-        if ($data['phone'] == null) {
-            $message = 'phone不能为空';
+        if ($data['open_id'] == null) {
+            $message = 'open_id不能为空';
         }
         return $message;
     }
