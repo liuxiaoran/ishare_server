@@ -14,10 +14,12 @@ class Record_m extends CI_Model
     {
         $status = true;
         try {
+            $this->load->database();
             $this->db->insert('record', $record);
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
         return $status;
@@ -40,6 +42,7 @@ class Record_m extends CI_Model
         }
 
         try {
+            $this->load->database();
             $query = $this->db->query($sql);
 
             if ($query->num_rows() > 0) {
@@ -60,7 +63,7 @@ class Record_m extends CI_Model
                 }
             }
         } catch (Exception $e) {
-
+            $this->db->close();
         }
 
         return $records;
@@ -145,6 +148,7 @@ class Record_m extends CI_Model
             foreach ($query->result_array() as $item) {
                 array_push($records, $item);
             }
+            $this->db->close();
         } catch (Exception $e) {
             $records = array();
             Log_Util::log_sql($e->getMessage(), __CLASS__);

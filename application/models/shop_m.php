@@ -15,6 +15,7 @@ class Shop_m extends CI_Model
     {
         $shops = array();
         try {
+            $this->load->database();
             $offset = ($page_num - 1) * $page_size;
             $sql = "SELECT DISTINCT(shop_name), shop_location, shop_longitude, shop_latitude  FROM share_items ";
 //            $sql = $sql." WHERE shop_longitude < ".($lng + $range)." AND shop_longitude > ".($lng - $range);
@@ -25,7 +26,6 @@ class Shop_m extends CI_Model
             $sql = $sql . " LIMIT $offset, $page_size";
             Log_Util::log_sql($sql, __CLASS__);
 
-            $this->load->database();
             $query = $this->db->query($sql);
 
             foreach ($query->result_array() as $row) {
@@ -43,7 +43,9 @@ class Shop_m extends CI_Model
 
                 array_push($shops, $shop);
             }
+            $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             $shops = array();
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }

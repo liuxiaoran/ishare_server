@@ -34,15 +34,9 @@ class Query_Card_Sort_Distance_C extends CI_Controller
             $pageSize = array_key_exists("pageSize", $_GET) ? $_GET["page_size"] : 10;
 
             $data = $this->Card_m->query_sort_distance($keyword, $trade_type, $longitude, $latitude, $pageNum, $pageSize);
-            if (count($data) != 0) {
-                $ret['status'] = 0;
-                $ret['message'] = 'success';
-                $ret['data'] = $data;
-            } else {
-                $ret['status'] = -1;
-                $ret['message'] = 'exe sql failure';
-                $ret['data'] = null;
-            }
+            $ret['status'] = 0;
+            $ret['message'] = 'success';
+            $ret['data'] = $data;
         }
 
         Log_Util::log_info($ret, __CLASS__);

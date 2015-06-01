@@ -29,6 +29,7 @@ class Contact_m extends CI_Model
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
         return $status;
@@ -53,6 +54,7 @@ class Contact_m extends CI_Model
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
@@ -76,6 +78,7 @@ class Contact_m extends CI_Model
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 

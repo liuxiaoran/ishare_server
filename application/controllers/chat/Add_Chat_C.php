@@ -24,14 +24,14 @@ class Add_Chat_C extends CI_Controller
         Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if ($this->User_m->verify_session_key($_GET)) {
+        if ($this->User_m->verify_session_key($_POST)) {
             $chat = $this->get_chat_data();
             $message = $this->check_chat_data($chat);
             if ($message === null) {
                 $chat_id = $this->Chat_m->add_chat($chat);
                 $chat['id'] = $chat_id;
-                $phone = $this->User_m->query_user_phone($chat['to_phone']);
-                $chat['phone_type'] = $phone['phone_type'];
+                $chat['phone_type'] = $this->User_m->query_phone_type($chat['to_user']);
+                $chat['nickname'] = $this->User_m->query_nickname($chat['from_user']);
                 if ($chat_id != 0) {
                     $this->send_uni_cast($chat);
                     $ret['status'] = 0;
@@ -56,8 +56,8 @@ class Add_Chat_C extends CI_Controller
 
     public function get_chat_data()
     {
-        $data['from_phone'] = array_key_exists("from_phone", $_POST) ? $_POST["from_phone"] : null;
-        $data['to_phone'] = array_key_exists("to_phone", $_POST) ? $_POST["to_phone"] : null;
+        $data['from_user'] = array_key_exists("from_user", $_POST) ? $_POST["from_user"] : null;
+        $data['to_user'] = array_key_exists("to_user", $_POST) ? $_POST["to_user"] : null;
         $data['type'] = array_key_exists("type", $_POST) ? $_POST["type"] : null;
         $data['content'] = array_key_exists("content", $_POST) ? $_POST["content"] : null;
         $data['time'] = $this->get_cur_time();
@@ -68,10 +68,10 @@ class Add_Chat_C extends CI_Controller
     public function check_chat_data($data)
     {
         $message = null;
-        if ($data['from_phone'] === null) {
-            $message = 'from_phone不能为空';
-        } else if ($data['to_phone'] === null) {
-            $message = 'to_phone不能为空';
+        if ($data['from_user'] === null) {
+            $message = 'from_user';
+        } else if ($data['to_user'] === null) {
+            $message = 'to_user';
         } else if ($data['type'] === null) {
             $message = 'type不能都为空';
         } else if ($data['content'] === null) {
@@ -86,7 +86,7 @@ class Add_Chat_C extends CI_Controller
     {
         $push = new Push_Util();
         if ($chat['phone_type'] == 1) {
-            $result = $push->push_android_cast($chat['to_phone'], $chat['from_phone'], $chat['content'], $chat['type'], $chat['time']);
+            $result = $push->push_android_cast(md5($chat['to_user']), $chat['nickname'], $chat['content'], $chat['from_user'], $chat['type'], $chat['time']);
         } else {
             $result = $push->push_ios_cast();
         }
@@ -97,14 +97,14 @@ class Add_Chat_C extends CI_Controller
     public function send_android_uni_cast($chat)
     {
         $broadcast = new Android_Cast_Util();
-        $result = $broadcast->sendUnicast($chat['device_token'], $chat['from_phone'], $chat['content']);
+        $result = $broadcast->sendUnicast($chat['device_token'], $chat['to_user'], $chat['content']);
         return $result;
     }
 
     public function send_ios_uni_cast($chat)
     {
         $broadcast = new IOS_Cast_Util();
-        $alert = $chat['from_phone'] . ':' . $chat['content'];
+        $alert = $chat['from_user'] . ':' . $chat['content'];
         $result = $broadcast->sendUnicast($chat['device_token'], $alert, '', '');
         return $result;
     }

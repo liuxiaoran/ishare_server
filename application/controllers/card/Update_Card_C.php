@@ -29,7 +29,7 @@ class Update_Card_C extends CI_Controller
             $card = $this->get_card_data();
             $message = $this->check_card_data($card);
             if (empty($message)) {
-                if ($this->Card_m->updateCard($card)) {
+                if ($this->Card_m->update_card($card)) {
                     $ret['status'] = 0;
                     $ret['message'] = 'success';
                 } else {
@@ -51,13 +51,12 @@ class Update_Card_C extends CI_Controller
     public function get_card_data()
     {
         $data = array();
-        $data['owner'] = $phone = array_key_exists("owner", $_POST) ? $_POST["owner"] : null;
+        $data['owner'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
         $data['shop_name'] = array_key_exists("shop_name", $_POST) ? $_POST["shop_name"] : null;
         $data['ware_type'] = array_key_exists("ware_type", $_POST) ? $_POST["ware_type"] : null;
         $data['discount'] = array_key_exists("discount", $_POST) ? $_POST["discount"] : null;
         $data['trade_type'] = array_key_exists("trade_type", $_POST) ? $_POST["trade_type"] : null;
         $data['shop_location'] = array_key_exists("shop_location", $_POST) ? $_POST["shop_location"] : null;
-        $data['owner_available'] = array_key_exists("owner_available", $_POST) ? $_POST["owner_available"] : null;
         $data['description'] = array_key_exists("description", $_POST) ? $_POST["description"] : null;
         $data['img'] = array_key_exists("img", $_POST) ? $_POST["img"] : null;
         $data['share_type'] = array_key_exists("share_type", $_POST) ? $_POST["share_type"] : null;

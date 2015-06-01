@@ -15,7 +15,6 @@ class Card_m extends CI_Model
     {
         parent::__construct();
         $this->load->model('Owner_location_m');
-        $this->load->model('Record_m');
     }
 
     function add_card($card)
@@ -25,8 +24,9 @@ class Card_m extends CI_Model
             $this->load->database();
             $this->db->trans_start();
             $this->db->insert('share_items', $card);
-            if (array_key_exists('owner_available', $card)) {
-                $this->OwnerLocation_M->add_locations($card['owner_available'], $card);
+            $card['id'] = $this->db->insert_id();
+            if (array_key_exists("owner_available", $card)) {
+                $this->Owner_location_m->add_locations($card['owner_available'], $card);
             }
             $this->db->trans_complete();
 
@@ -34,6 +34,7 @@ class Card_m extends CI_Model
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
@@ -56,6 +57,7 @@ class Card_m extends CI_Model
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
@@ -104,6 +106,7 @@ class Card_m extends CI_Model
             $status = $this->db->trans_status();
             $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
@@ -151,10 +154,17 @@ class Card_m extends CI_Model
         $item['shop_latitude'] = $row['shop_latitude'];
         $item['description'] = $row['description'];
         $item['img'] = $row['img'];
+        $item['img'] = $this->tans_images($item['img']);
         $item['share_type'] = $row['share_type'];
         $item['publish_time'] = $row['time'];
 
         return $item;
+    }
+
+    public function tans_images($image_str)
+    {
+        $images = (Array)json_decode($image_str);
+        return $images;
     }
 
     public function query_by_id($id)
@@ -165,20 +175,21 @@ class Card_m extends CI_Model
                 . ' share_items.discount, share_items.trade_type, share_items.shop_location,'
                 . ' share_items.shop_longitude, share_items.shop_latitude, share_items.description,'
                 . ' share_items.img, share_items.share_type, share_items.time, users.nickname, users.avatar'
-                . ' FROM share_items, users WHERE users.phone = share_items.owner'
+                . ' FROM share_items, users WHERE users.open_id = share_items.owner'
                 . ' AND share_items.id = ' . $id;
 
             Log_Util::log_sql($sql, __CLASS__);
 
             $this->load->database();
             $query = $this->db->query($sql);
-            $this->db->close();
 
             if ($query->num_rows() == 1) {
                 $row = $query->row_array();
                 $item = $this->set_card($row);
             }
+            $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
@@ -201,7 +212,7 @@ class Card_m extends CI_Model
                 $item['owner_latitude'] = $location['latitude'];
                 $item['owner_location'] = $location['location'];
                 $item['owner_time'] = $location['time'];
-                $item['distance'] = $location['distance'];
+                $item['owner_distance'] = $location['distance'];
                 array_push($items, $item);
             }
         } catch (Exception $e) {
@@ -224,15 +235,22 @@ class Card_m extends CI_Model
         try {
             $this->load->database();
             $query = $this->db->query($sql);
-            $this->db->close();
 
             foreach ($query->result_array() as $row) {
                 array_push($cards, $row);
             }
+            $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
         return $cards;
+    }
+
+    public function trans_image($image_str)
+    {
+        $images = explode(',', $image_str);
+        return json_encode($images);
     }
 }

@@ -22,20 +22,20 @@ class Add_Card_C extends CI_Controller
         Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if (!$this->User_m->verify_session_key($_GET)) {
+        if (!$this->User_m->verify_session_key($_POST)) {
             $ret['status'] = 2;
             $ret['message'] = 'not login';
         } else {
             $data = $this->get_card_data();
             $message = $this->check_card_data($data);
-            $card = $this->transform_data($data);
+//            $card = $this->transform_data($data);
             if ($message === null) {
-                if ($this->Card_m->add_card($card)) {
+                if ($this->Card_m->add_card($data)) {
                     $ret['status'] = 0;
-                    $ret['message'] = 'exe sql success';
+                    $ret['message'] = 'success';
                 } else {
                     $ret['status'] = -1;
-                    $ret['message'] = 'exe sql error';
+                    $ret['message'] = 'failure';
                 }
             } else {
                 $ret['status'] = -1;
@@ -62,6 +62,7 @@ class Add_Card_C extends CI_Controller
         $data['owner_available'] = array_key_exists("owner_available", $_POST) ? $_POST["owner_available"] : null;
         $data['description'] = array_key_exists("description", $_POST) ? $_POST["description"] : null;
         $data['img'] = array_key_exists("img", $_POST) ? $_POST["img"] : null;
+//        $data['img'] = $this->trans_image($data['img']);
         $data['share_type'] = array_key_exists("share_type", $_POST) ? $_POST["share_type"] : null;
 
         return $data;
@@ -85,49 +86,39 @@ class Add_Card_C extends CI_Controller
         return $message;
     }
 
-    public function  transform_data($data)
+    public function trans_img($img_str)
     {
-        $card = array();
-        if ($data['owner'] != null) {
-            $card['owner'] = $data['owner'];
+        $result = '';
+
+        $img_str = substr($img_str, 1, sizeof($img_str) - 2);
+        $images = explode(",", $img_str);
+
+        for ($i = 0; $i < sizeof($images); $i++) {
+            $images[$i] = substr($images[$i], 1, sizeof($images[$i]) - 2);
+            if ($i == sizeof($images) - 1) {
+                $result = $result . $images[$i];
+            } else {
+                $result = $result . $images[$i] . ",";
+            }
+
         }
-        if ($data['shop_name'] != null) {
-            $card['shop_name'] = $data['shop_name'];
-        }
-        if ($data['ware_type'] != null) {
-            $card['ware_type'] = $data['ware_type'];
-        }
-        if ($data['discount'] != null) {
-            $card['discount'] = $data['discount'];
-        }
-        if ($data['trade_type'] != null) {
-            $card['trade_type'] = $data['trade_type'];
-        }
-        if ($data['trade_type'] != null) {
-            $card['trade_type'] = $data['trade_type'];
-        }
-        if ($data['shop_location'] != null) {
-            $card['shop_location'] = $data['shop_location'];
-        }
-        if ($data['shop_location'] != null) {
-            $card['shop_location'] = $data['shop_location'];
-        }
-        if ($data['shop_longitude'] != null) {
-            $card['shop_longitude'] = $data['shop_longitude'];
-        }
-        if ($data['shop_latitude'] != null) {
-            $card['shop_latitude'] = $data['shop_latitude'];
-        }
-        if ($data['description'] != null) {
-            $card['description'] = $data['description'];
-        }
-        if ($data['img'] != null) {
-            $card['img'] = $data['img'];
-        }
-        if ($data['share_type'] != null) {
-            $card['share_type'] = $data['share_type'];
-        }
-        return $card;
+
+        return $result;
     }
 
+    public function trans_image($img_json)
+    {
+        $result = "['";
+        $images = (Array)json_decode($img_json);
+        for ($i = 0; $i < sizeof($images); $i++) {
+            if ($i == sizeof($images) - 1) {
+                $result = $result . $images[$i] . "']";
+            } else {
+                $result = $result . $images[$i] . "',";
+            }
+
+        }
+
+        return $result;
+    }
 }

@@ -38,11 +38,13 @@ class Query_Card_Sort_Discount_C extends CI_Controller
             $ret['status'] = 0;
             $ret['message'] = 'success';
             $ret['data'] = $data;
+
         }
 
         Log_Util::log_info($ret, __CLASS__);
 
         echo json_encode($ret);
     }
+
 
 }
