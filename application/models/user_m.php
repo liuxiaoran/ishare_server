@@ -23,6 +23,7 @@ class User_m extends CI_Model
             }
             $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }
 
@@ -33,10 +34,13 @@ class User_m extends CI_Model
     {
         $key = md5($open_id . time());
         try {
+            $this->load->database();
             $sql = 'update users set session_key = ? where open_id = ?';
             $this->db->query($sql, array($key, $open_id));
+            $this->db->close();
         } catch (Exception $e) {
             $key = null;
+            $this->db->close();
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }
         return $key;
@@ -51,24 +55,23 @@ class User_m extends CI_Model
             $query = $this->db->query($sql);
             $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }
 
-        if ($query->num_rows() === 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return $query->num_rows() === 0 ? false : true;
     }
 
     public function add_user($user)
     {
         $status = true;
         try {
+            $this->load->database();
             $this->db->insert('users', $user);
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }
 
@@ -79,28 +82,32 @@ class User_m extends CI_Model
     {
         $status = true;
         try {
+            $this->load->database();
+
             $sql = "UPDATE users SET open_id = '" . $user['open_id'] . "'";
-            if (array_key_exists("phone_type", $user)) {
+            if (isset($user['phone_type'])) {
                 $sql = $sql . ", phone_type = '" . $user['phone_type'] . "'";
             }
-            if (array_key_exists("phone", $user)) {
+            if (isset($user['phone'])) {
                 $sql = $sql . ", phone = '" . $user['phone'] . "'";
             }
-            if (array_key_exists("nickname", $user)) {
+            if (isset($user['nickname'])) {
                 $sql = $sql . ", nickname = '" . $user['nickname'] . "'";
             }
-            if (array_key_exists("avatar", $user)) {
+            if (isset($user['avatar'])) {
                 $sql = $sql . ", avatar = '" . $user['avatar'] . "'";
             }
-            if (array_key_exists("gender", $user)) {
+            if (isset($user['gender'])) {
                 $sql = $sql . ", gender = '" . $user['gender'] . "'";
             }
             $sql = $sql . " WHERE open_id = '" . $user['open_id'] . "'";
 
-            $this->load->database();
+            Log_Util::log_sql($sql, __CLASS__);
+
             $this->db->query($sql);
             $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             $status = false;
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
@@ -112,6 +119,8 @@ class User_m extends CI_Model
     {
         $result = true;
         try {
+            $this->load->database();
+
             $sql = 'UPDATE user SET open_id = ' . $open_id;
             if ($device_token != 0) {
                 $sql = $sql . ', device_token = ' . $device_token;
@@ -120,11 +129,12 @@ class User_m extends CI_Model
                 $sql = $sql . ', phone_type = ' . $phone_type;
             }
             $sql = $sql . ' WHERE phone = ' . $open_id;
-            $this->load->database();
+
             $this->db->query($sql);
             $this->db->close();
         } catch (Exception $e) {
             $result = false;
+            $this->db->close();
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }
 
@@ -135,21 +145,44 @@ class User_m extends CI_Model
         }
     }
 
-    public function query_user_phone($open_id)
+    public function query_phone_type($open_id)
     {
         $row = array();
         try {
-            $sql = 'SELECT phone_type, device_token FROM users WHERE phone = ' . $open_id;
-            Log_Util::log_sql($sql, __CLASS__);
             $this->load->database();
+
+            $sql = "SELECT phone_type FROM users WHERE open_id = '" . $open_id."'";
+            Log_Util::log_sql($sql, __CLASS__);
+
             $query = $this->db->query($sql);
-            $this->db->close();
             $row = $query->row_array();
+            $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
-        return $row;
+        return $row['phone_type'];
+    }
+
+    public function query_nickname($open_id)
+    {
+        $row = array();
+        try {
+            $this->load->database();
+
+            $sql = "SELECT nickname FROM users WHERE open_id = '" . $open_id."'";
+            Log_Util::log_sql($sql, __CLASS__);
+
+            $query = $this->db->query($sql);
+            $row = $query->row_array();
+            $this->db->close();
+        } catch (Exception $e) {
+            $this->db->close();
+            Log_Util::log_sql($e->getMessage(), __CLASS__);
+        }
+
+        return $row['nickname'];
     }
 
     public function verify_session_key($data)
@@ -164,6 +197,7 @@ class User_m extends CI_Model
             $result = $this->db->query($sql);
             $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
 
@@ -174,13 +208,16 @@ class User_m extends CI_Model
     {
         $row = array();
         try {
-            $sql = 'SELECT * FROM users WHERE phone = ' . $open_id;
-            Log_Util::log_sql($sql, __CLASS__);
             $this->load->database();
+
+            $sql = "SELECT * FROM users WHERE open_id = '" . $open_id . "'";
+            Log_Util::log_sql($sql, __CLASS__);
+
             $query = $this->db->query($sql);
-            $this->db->close();
             $row = $query->row_array();
+            $this->db->close();
         } catch (Exception $e) {
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
         return $row;

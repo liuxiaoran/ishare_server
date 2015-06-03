@@ -14,13 +14,30 @@ class Record_m extends CI_Model
     {
         $status = true;
         try {
+            $this->load->database();
             $this->db->insert('record', $record);
+            $this->update_lent_count($record);
             $this->db->close();
         } catch (Exception $e) {
             $status = false;
+            $this->db->close();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
         return $status;
+    }
+
+    private function update_lent_count($record)
+    {
+        $card_id = $record['card_id'];
+        $update_sql = " UPDATE share_items"
+                    . " SET lend_count = lend_count + 1"
+                    . " WHERE id = ?";
+        try {
+            $this->db->query($update_sql, array($card_id));
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     public function get($paras)
@@ -39,36 +56,61 @@ class Record_m extends CI_Model
             $sql = $sql . " WHERE R.lend_id = '$lend_id'";
         }
 
+        $start_index = ($paras['page_num'] - 1) * $paras['page_size'];
+        $end_index = $paras['page_size'];
+
+        $sql = $sql . " LIMIT $start_index, $end_index";
+
         try {
+            $this->load->database();
             $query = $this->db->query($sql);
+            $this->db->close();
 
             if ($query->num_rows() > 0) {
                 foreach($query->result_array() as $record)
                 {
-                    if ($paras['borrow_id'] != null) // 获取对方的头像
-                        $record['avatar'] = $this->query_user_by_id($record['lend_id'])->avatar;
-                    else
-                        $record['avatar'] = $this->query_user_by_id($record['borrow_id'])->avatar;
+                    // 获取借主和卡主的信息
+                    $this->set_user_info($record);
 
                     if ($paras['longitude'] != null && $paras['latitude'] != null) { // 获取店的距离和卡的距离
                         $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['shop_longitude'], $record['shop_latitude']);
-                        $record['owner_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['owner_longitude'], $record['owner_latitude']);
+                        $record['lend_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['owner_longitude'], $record['owner_latitude']);
+
+                        $record['shop_distance'] = round($record['shop_distance'], 1); // 四舍五入, 保留1位小数
+                        $record['lend_distance'] = round($record['lend_distance'], 1);
                     }
+
+                    $record['shop_name'] = substr($record['shop_name'], 0, 60); // 截取店名的前20位
 
                     $this->unset_location($record); // 撤销位置信息
                     array_push($records, $record);
                 }
             }
         } catch (Exception $e) {
-
+                $this->db->close();
         }
 
         return $records;
     }
 
-    private function query_min_owner_distance($longitude, $latitude)
+    /**
+     * 设置用户信息
+     * @param $record
+     */
+    private function set_user_info(& $record)
     {
+        $borrow_id = $record['borrow_id'];
+        $lend_id = $record['lend_id'];
 
+        if (($borrow_user = $this->query_user_by_id($borrow_id)) != false) {
+            $record['borrow_name'] = $borrow_user->nickname;
+            $record['borrow_avatar'] = $borrow_user->avatar;
+        }
+
+        if (($lend_user = $this->query_user_by_id($lend_id)) != false) {
+            $record['lend_name'] = $lend_user->nickname;
+            $record['lend_avatar'] = $lend_user->avatar;
+        }
     }
 
 
@@ -92,9 +134,17 @@ class Record_m extends CI_Model
     private function query_user_by_id($id)
     {
         $sql = "SELECT * FROM users WHERE open_id = '$id'";
-        $query = $this->db->query($sql);
 
-        return $query->row();
+        try {
+            $this->load->database();
+            $query = $this->db->query($sql);
+            $this->db->close();
+            return $query->row();
+        } catch (Exception $e) {
+            $this->db->close();
+            return false;
+        }
+
     }
 
     public function query_records($borrow_id, $lend_id, $type)
@@ -142,10 +192,12 @@ class Record_m extends CI_Model
 
             $this->load->database();
             $query = $this->db->query($sql);
+            $this->db->close();
             foreach ($query->result_array() as $item) {
                 array_push($records, $item);
             }
         } catch (Exception $e) {
+            $this->db->close();
             $records = array();
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
@@ -212,47 +264,31 @@ class Record_m extends CI_Model
             $sql = "UPDATE record SET status = '$status'";
             $sql_time = "";
             switch ($status) {
-                case 5:
-                    $sql_time = ", t_ret_m = '$time'";
-                    break;
-                case 4:
-                    $sql_time = ", t_ret_c = '$time'";
-                    break;
-                case 3:
-                    $sql_time = ", t_con_c = '$time'";
-                    break;
-                case 2:
+                case 0:
                     $sql_time = ", t_cancel = '$time'";
                     break;
                 case 1:
                     $sql_time = ", t_apply = '$time'";
                     break;
-                case -5:
-                    $sql_time = ", t_con_ret_m = '$time'";
+                case 2:
+                    $sql_time = ", t_get = '$time'";
                     break;
-                case -4:
-                    $sql_time = ", t_con_ret_c = '$time'";
+                case 3:
+                    $sql_time = ", t_use = '$time'";
                     break;
-                case -3:
-                    $sql_time = ", t_lend = '$time'";
-                    break;
-                case -2:
-                    $sql_time = ", t_reject = '$time'";
-                    break;
-                case -1:
-                    $sql_time = ", t_agree = '$time'";
-                    break;
-                case 0:
-                    $sql_time = ", t_acc = '$time'";
+                case 4:
+                    $sql_time = ", t_finish = '$time'";
                     break;
             }
 
             $sql = $sql . $sql_time . " WHERE id = '$id'";
+            $this->load->database();
             $this->db->query($sql);
             $this->db->close();
             $update_result = true;
         } catch (Exception $e) {
             $update_result = false;
+            $this->db->close();
         }
 
         return $update_result;
@@ -266,12 +302,15 @@ class Record_m extends CI_Model
     public function is_exist($id)
     {
         $sql = "SELECT id FROM record WHERE id = '$id'";
-        $query = $this->db->query($sql);
-        $this->db->close();
-        if ($query->num_rows() > 0)
-            return true;
-        else
-            return false;
+        try {
+            $this->load->database();
+            $query = $this->db->query($sql);
+            $this->db->close();
+            return $query->num_rows() > 0 ? true : false;
+        } catch (Exception $e) {
+            $this->db->close();
+        }
+
     }
 
 }
