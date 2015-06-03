@@ -45,7 +45,7 @@ class Record_m extends CI_Model
         $records = array();
         $borrow_id = $paras["borrow_id"];
         $lend_id = $paras["lend_id"];
-        $sql = "SELECT R.id, S.shop_name, S.shop_longitude, S.shop_latitude, S.discount, S.trade_type,"
+        $sql = "SELECT R.id, S.shop_name, S.img AS shop_img, S.shop_longitude, S.shop_latitude, S.discount, S.trade_type,"
             . " R.status, R.borrow_id, R.lend_id, O.longitude AS owner_longitude, O.latitude AS owner_latitude,"
             . " R.t_apply, R.t_get, R.t_use, R.t_finish, R.t_cancel"
             . " FROM ((record AS R JOIN share_items AS S ON R.card_id = S.id) JOIN owner_location AS O ON S.id = O.item_id)";
@@ -74,8 +74,8 @@ class Record_m extends CI_Model
                     $this->set_user_info($record);
 
                     if ($paras['longitude'] != null && $paras['latitude'] != null) { // 获取店的距离和卡的距离
-                        $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['shop_longitude'], $record['shop_latitude']);
-                        $record['lend_distance'] = Distance_Util::get_kilometers_between_points($paras['longitude'], $paras['latitude'], $record['owner_longitude'], $record['owner_latitude']);
+                        $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['shop_latitude'], $record['shop_longitude']);
+                        $record['lend_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['owner_latitude'], $record['owner_longitude']);
 
                         $record['shop_distance'] = round($record['shop_distance'], 1); // 四舍五入, 保留1位小数
                         $record['lend_distance'] = round($record['lend_distance'], 1);

@@ -6,7 +6,7 @@ class Request_Card_C extends CI_Controller
     {
         parent::__construct();
         $this->load->model('User_m');
-        $this->load->model('Request_m');
+        $this->load->model('Request_card_m');
     }
 
     /*
@@ -28,7 +28,7 @@ class Request_Card_C extends CI_Controller
         }
 
         if ($error_message == null) {
-            if ($this->Request_m->add($paras)) {
+            if ($this->Request_card_m->add($paras)) {
                 $response['status'] = 0;
                 $response['message'] = 'success';
                 echo json_encode($response);
@@ -45,14 +45,45 @@ class Request_Card_C extends CI_Controller
      */
     public function get()
     {
-        $para_name_array = array('user_longitude', 'user_latitude');
+        $para_name_array = array('user_longitude', 'user_latitude', 'page_num', 'page_size');
         $paras = $this->get_para($para_name_array);
+        $error_message = $this->check_para_get($paras);
 
+        $response = array('status' => -1, 'message' => '');
+
+        if ($paras['page_num'] == null) $paras['num'] = 1;
+        if ($paras['page_size'] == null) $paras['size'] = 10;
+
+        /*判断用户是否登录*/
+        if ( ! $this->is_login()) {
+            $this->not_login_response();
+            return;
+        }
+
+        if ($error_message == null) {
+            if ($data = $this->Request_card_m->get($paras)) {
+                $response['status'] = 0;
+                $response['message'] = 'success';
+                $response['data'] = $data;
+                echo json_encode($response);
+                return;
+            }
+        }
+
+        $response['message'] = $error_message;
+        echo json_encode($response);
     }
 
     private function check_para_get($paras)
     {
+        $message = null;
+        if ($paras['user_longitude'] == null) {
+            $message = '用户经度不能为空';
+        }elseif ($paras['user_latitude'] == null) {
+            $message = '用户纬度不能为空';
+        }
 
+        return $message;
     }
 
     private function check_para_index($paras)
