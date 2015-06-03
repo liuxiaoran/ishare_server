@@ -16,7 +16,7 @@ class Comment_m extends CI_Model {
                 $add_status = true;
             $this->db->close();
         } catch (Exception $e) {
-
+            $this->db->close();
         }
         return $add_status;
     }

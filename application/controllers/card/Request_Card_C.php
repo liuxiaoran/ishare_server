@@ -6,6 +6,7 @@ class Request_Card_C extends CI_Controller
     {
         parent::__construct();
         $this->load->model('User_m');
+        $this->load->model('Request_m');
     }
 
     /*
@@ -13,7 +14,8 @@ class Request_Card_C extends CI_Controller
      */
     public function index()
     {
-        $para_name_array = array('open_id', 'card_id', 'comment', 'rating');
+        $para_name_array = array('open_id', 'shop_name', 'shop_location', 'shop_longitude', 'shop_latitude', 'discount',
+                                 'ware_type', 'trade_type', 'description', 'user_location', 'user_longitude', 'user_latitude');
         $paras = $this->get_para($para_name_array);
         $error_message = $this->check_para_index($paras);
 
@@ -26,16 +28,45 @@ class Request_Card_C extends CI_Controller
         }
 
         if ($error_message == null) {
-
+            if ($this->Request_m->add($paras)) {
+                $response['status'] = 0;
+                $response['message'] = 'success';
+                echo json_encode($response);
+                return;
+            }
         }
 
         $response['message'] = $error_message;
         echo json_encode($response);
     }
 
+    /**
+     * 用户获取附近的请求借卡信息
+     */
+    public function get()
+    {
+        $para_name_array = array('user_longitude', 'user_latitude');
+        $paras = $this->get_para($para_name_array);
+
+    }
+
+    private function check_para_get($paras)
+    {
+
+    }
+
     private function check_para_index($paras)
     {
         $message = null;
+        if ($paras['open_id'] == null) {
+            $message = 'open_id 不能为空';
+        } elseif ($paras['shop_name'] == null) {
+            $message = '商店名不能为空';
+        } elseif ($paras['ware_type'] == null) {
+            $message = '商品(卡)类型不能为空';
+        } elseif ($paras['trade_type'] == null) {
+            $message = '行业类型不能为空';
+        }
 
         return $message;
     }

@@ -46,7 +46,8 @@ class Record_m extends CI_Model
         $borrow_id = $paras["borrow_id"];
         $lend_id = $paras["lend_id"];
         $sql = "SELECT R.id, S.shop_name, S.shop_longitude, S.shop_latitude, S.discount, S.trade_type,"
-            . " R.status, R.borrow_id, R.lend_id, O.longitude AS owner_longitude, O.latitude AS owner_latitude"
+            . " R.status, R.borrow_id, R.lend_id, O.longitude AS owner_longitude, O.latitude AS owner_latitude,"
+            . " R.t_apply, R.t_get, R.t_use, R.t_finish, R.t_cancel"
             . " FROM ((record AS R JOIN share_items AS S ON R.card_id = S.id) JOIN owner_location AS O ON S.id = O.item_id)";
 
         // 判断是获取借入卡记录还是借出卡记录
