@@ -61,13 +61,11 @@ class Request_Card_C extends CI_Controller
         }
 
         if ($error_message == null) {
-            if ($data = $this->Request_card_m->get($paras)) {
                 $response['status'] = 0;
                 $response['message'] = 'success';
-                $response['data'] = $data;
+                $response['data'] = $this->Request_card_m->get($paras);
                 echo json_encode($response);
                 return;
-            }
         }
 
         $response['message'] = $error_message;

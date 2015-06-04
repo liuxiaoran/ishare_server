@@ -28,7 +28,7 @@ class Request_card_m extends CI_Model
      */
     public function get($paras)
     {
-        $select_sql = " SELECT RC.open_id, RC.shop_name, RC.shop_location, RC.shop_longitude, RC.shop_latitude, RC.time, RC.discount,"
+        $select_sql = " SELECT RC.open_id, RC.shop_name, RC.shop_location, RC.shop_longitude, RC.shop_latitude, RC.time AS publish_time, RC.discount,"
                     . " RC.ware_type, RC.trade_type, RC.description, RC.user_longitude, RC.user_latitude, RC.user_location,"
                     . " U.nickname, U.avatar, U.gender"
                     . " FROM request_card AS RC JOIN users AS U ON RC.open_id = U.open_id";

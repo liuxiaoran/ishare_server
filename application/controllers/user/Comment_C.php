@@ -56,13 +56,11 @@ class Comment_C extends CI_Controller {
         }
 
         if ($error_message == null) {
-            if ($data = $this->Comment_m->get($paras)) {
-                $response['status'] = 0;
-                $response['message'] = 'success';
-                $response['data'] = $data;
-                echo json_encode($response);
-                return;
-            }
+            $response['status'] = 0;
+            $response['message'] = 'success';
+            $response['data'] = $this->Comment_m->get($paras);
+            echo json_encode($response);
+            return;
         }
 
         $response['message'] = $error_message;
