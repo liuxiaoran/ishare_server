@@ -70,20 +70,7 @@ class Record_m extends CI_Model
             if ($query->num_rows() > 0) {
                 foreach($query->result_array() as $record)
                 {
-                    // 获取借主和卡主的信息
-                    $this->set_user_info($record);
-
-                    if ($paras['longitude'] != null && $paras['latitude'] != null) { // 获取店的距离和卡的距离
-                        $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['shop_latitude'], $record['shop_longitude']);
-                        $record['lend_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['owner_latitude'], $record['owner_longitude']);
-
-                        $record['shop_distance'] = round($record['shop_distance'], 1); // 四舍五入, 保留1位小数
-                        $record['lend_distance'] = round($record['lend_distance'], 1);
-                    }
-
-                    $record['shop_name'] = substr($record['shop_name'], 0, 60); // 截取店名的前20位
-
-                    $this->unset_location($record); // 撤销位置信息
+                    $this->set_result_of_get($record, $paras);
                     array_push($records, $record);
                 }
             }
@@ -92,6 +79,24 @@ class Record_m extends CI_Model
         }
 
         return $records;
+    }
+
+    private function set_result_of_get(& $record, $paras)
+    {
+        $this->set_user_info($record);// 获取借主和卡主的信息
+        $record['shop_img'] = json_decode($record['shop_img']); // 将商店图片转化为json格式
+
+        if ($paras['longitude'] != null && $paras['latitude'] != null) { // 获取店的距离和卡的距离
+            $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['shop_latitude'], $record['shop_longitude']);
+            $record['lend_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['owner_latitude'], $record['owner_longitude']);
+
+            $record['shop_distance'] = round($record['shop_distance'], 1); // 四舍五入, 保留1位小数
+            $record['lend_distance'] = round($record['lend_distance'], 1);
+        }
+
+        $record['shop_name'] = substr($record['shop_name'], 0, 60); // 截取店名的前20位
+
+        $this->unset_location($record); // 撤销位置信息
     }
 
     /**
