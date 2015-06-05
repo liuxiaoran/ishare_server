@@ -153,6 +153,29 @@ class Record_m extends CI_Model
 
     }
 
+    public function get_by_id($id)
+    {
+        $select_sql = " SELECT R.id, R.borrow_id, R.lend_id, R.status, R.t_apply, R.t_cancel, R.t_get, R.t_use, R.t_finish,"
+                    . " S.shop_name, S.ware_type, S.trade_type, S.discount, S.img AS shop_img"
+                    . " FROM record AS R JOIN share_items AS S ON R.card_id = S.id"
+                    . " WHERE R.id = $id";
+
+        $result = array();
+
+        try {
+            $this->load->database();
+            $query = $this->db->query($select_sql);
+            $this->db->close();
+            $result = $query->row_array();
+            $result['shop_img'] = json_decode($result['shop_img']); // 将多张图片转为json信息
+            $this->set_user_info($result);
+            return $result;
+        } catch (Exception $e) {
+            $this->db->close();
+            return false;
+        }
+    }
+
     public function query_records($borrow_id, $lend_id, $type)
     {
         $records = array();

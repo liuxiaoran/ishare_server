@@ -28,7 +28,7 @@ class Request_card_m extends CI_Model
      */
     public function get($paras)
     {
-        $select_sql = " SELECT RC.open_id, RC.shop_name, RC.shop_location, RC.shop_longitude, RC.shop_latitude, RC.time AS publish_time, RC.discount,"
+        $select_sql = " SELECT RC.id, RC.shop_name, RC.shop_location, RC.shop_longitude, RC.shop_latitude, RC.time AS publish_time, RC.discount,"
                     . " RC.ware_type, RC.trade_type, RC.description, RC.user_longitude, RC.user_latitude, RC.user_location,"
                     . " U.nickname, U.avatar, U.gender"
                     . " FROM request_card AS RC JOIN users AS U ON RC.open_id = U.open_id";
@@ -57,7 +57,6 @@ class Request_card_m extends CI_Model
             return $results;
         } catch (Exception $e) {
             $this->db->close();
-            return false;
         }
     }
 
@@ -79,7 +78,6 @@ class Request_card_m extends CI_Model
      */
     private function unset_get(& $row)
     {
-        unset($row['open_id']);
         unset($row['user_longitude']);
         unset($row['user_latitude']);
     }
@@ -95,5 +93,31 @@ class Request_card_m extends CI_Model
         $offset = ($paras['page_num'] - 1) * $paras['page_size'];
         $length = $paras['page_size'];
         return array_slice($request_cards, $offset, $length);
+    }
+
+    public function update($paras, $id)
+    {
+        try {
+            $this->load->database();
+            $this->db->update('request_card', $paras, array('id' => $id));
+            $this->db->close();
+            return true;
+        } catch (Exception $e) {
+            $this->db->close();
+            return false;
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            $this->load->database();
+            $this->db->delete('request_card', array('id' => $id));
+            $this->db->close();
+            return true;
+        } catch (Exception $e) {
+            $this->db->close();
+            return false;
+        }
     }
 }
