@@ -217,8 +217,8 @@ class Card_m extends CI_Model
                 $item['owner_time'] = $location['time'];
                 $item['owner_distance'] = $location['distance'];
                 // 距离保留两位小数
-                $item['shop_distance'] = round($item['shop_distance'], 2);
-                $item['owner_distance'] = round($item['owner_distance'], 2);
+                $item['shop_distance'] = round($item['shop_distance'], 1);
+                $item['owner_distance'] = round($item['owner_distance'], 1);
                 array_push($items, $item);
             }
         } catch (Exception $e) {

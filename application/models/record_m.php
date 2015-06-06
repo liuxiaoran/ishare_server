@@ -47,7 +47,7 @@ class Record_m extends CI_Model
         $lend_id = $paras["lend_id"];
         $sql = "SELECT R.id, S.shop_name, S.img AS shop_img, S.shop_longitude, S.shop_latitude, S.discount, S.trade_type,"
             . " R.status, R.borrow_id, R.lend_id, O.longitude AS owner_longitude, O.latitude AS owner_latitude,"
-            . " R.t_apply, R.t_get, R.t_use, R.t_finish, R.t_cancel"
+            . " R.t_apply, R.t_get, R.t_return, R.t_finish, R.t_cancel"
             . " FROM ((record AS R JOIN share_items AS S ON R.card_id = S.id) JOIN owner_location AS O ON S.id = O.item_id)";
 
         // 判断是获取借入卡记录还是借出卡记录
@@ -155,7 +155,7 @@ class Record_m extends CI_Model
 
     public function get_by_id($id)
     {
-        $select_sql = " SELECT R.id, R.borrow_id, R.lend_id, R.status, R.t_apply, R.t_cancel, R.t_get, R.t_use, R.t_finish,"
+        $select_sql = " SELECT R.id, R.borrow_id, R.lend_id, R.status, R.t_apply, R.t_cancel, R.t_get, R.t_return, R.t_finish,"
                     . " S.shop_name, S.ware_type, S.trade_type, S.discount, S.img AS shop_img"
                     . " FROM record AS R JOIN share_items AS S ON R.card_id = S.id"
                     . " WHERE R.id = $id";
@@ -303,7 +303,7 @@ class Record_m extends CI_Model
                     $sql_time = ", t_get = '$time'";
                     break;
                 case 3:
-                    $sql_time = ", t_use = '$time'";
+                    $sql_time = ", t_return = '$time'";
                     break;
                 case 4:
                     $sql_time = ", t_finish = '$time'";
