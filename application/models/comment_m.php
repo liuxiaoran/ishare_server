@@ -25,7 +25,7 @@ class Comment_m extends CI_Model {
     {
         $begin_index = ($paras['page_num'] - 1) * $paras['page_size'];
         $end_index = $paras['page_size'];
-        $sql = " SELECT UC.id, UC.card_id, UC.comment, UC.rating, UC.time, U.nickname"
+        $sql = " SELECT UC.id, UC.card_id, UC.comment, UC.rating, UC.time, U.nickname, U.avatar, U.gender"
              . " FROM user_comment AS UC JOIN users AS U ON UC.open_id = U.open_id"
              . " WHERE UC.card_id = ?"
              . " LIMIT $begin_index, $end_index";
