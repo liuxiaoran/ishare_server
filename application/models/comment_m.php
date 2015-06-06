@@ -39,6 +39,32 @@ class Comment_m extends CI_Model {
         }
     }
 
+    public function update($paras, $id)
+    {
+        try {
+            $this->load->database();
+            $this->db->update('user_comment', $paras, array('id' => $id));
+            $this->db->close();
+            return true;
+        } catch (Exception $e) {
+            $this->db->close();
+            return false;
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            $this->load->database();
+            $this->db->delete('user_comment', array('id' => $id));
+            $this->db->close();
+            return true;
+        } catch (Exception $e) {
+            $this->db->close();
+            return false;
+        }
+    }
+
     private function update_rating($comment)
     {
         $select_sql = " SELECT rating_average, rating_num"

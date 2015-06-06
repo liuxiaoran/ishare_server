@@ -67,6 +67,87 @@ class Comment_C extends CI_Controller {
         echo json_encode($response);
     }
 
+    public function update()
+    {
+        $para_name_array = array('id', 'comment', 'rating');
+        $paras = $this->get_para($para_name_array);
+        $error_message = $this->check_para_update($paras);
+
+        $response = array('status' => -1, 'message' => '');
+
+        /*判断用户是否登录*/
+        if ( ! $this->is_login()) {
+            $this->not_login_response();
+            return;
+        }
+
+        if ($error_message == null) {
+            $id = $paras['id'];
+            unset($paras['id']);
+            foreach($paras as $key => $value) { // 没有传递的参数则保持不变, 故清除之
+                if ($value == null) {
+                    unset($paras[$key]);
+                }
+            }
+
+            if ($this->Comment_m->update($paras, $id)) {
+                $response['status'] = 0;
+                $response['message'] = 'success';
+                echo json_encode($response);
+                return;
+            } else {
+                $response['message'] = 'update failed';
+                echo json_encode($response);
+                return;
+            }
+
+        }
+
+        $response['message'] = $error_message;
+        echo json_encode($response);
+    }
+
+    public function delete()
+    {
+        $paras = $this->get_para(array('id'));
+
+        $response = array('status' => -1, 'message' => '');
+
+        if ( ! $this->is_login()) {
+            $this->not_login_response();
+            return;
+        }
+
+        if ($paras['id'] != null) {
+            if ($this->Comment_m->delete($paras['id'])) {
+                $response['status'] = 0;
+                $response['message'] = 'success';
+                echo json_encode($response);
+                return;
+            } else {
+                $response['message'] = 'delete failed';
+                echo json_encode($response);
+                return;
+            }
+        }
+
+        $response['message'] = 'id不能为空';
+        echo json_encode($response);
+    }
+
+    private function check_para_update($paras)
+    {
+        $message = null;
+
+        if ($paras['id'] == null) {
+            $message = 'id不能为空';
+        } elseif ($paras['rating'] != null && (($paras['rating'] < 0) || ($paras['rating'] > 5))) {
+            $message = '评分只能在0-5分之间';
+        }
+
+        return $message;
+    }
+
     private function check_para_get($paras)
     {
         $message = null;
