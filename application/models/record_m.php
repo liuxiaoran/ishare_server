@@ -60,7 +60,7 @@ class Record_m extends CI_Model
         $start_index = ($paras['page_num'] - 1) * $paras['page_size'];
         $end_index = $paras['page_size'];
 
-        $sql = $sql . " LIMIT $start_index, $end_index";
+        $sql = $sql . " ORDER BY t_apply DESC" . " LIMIT $start_index, $end_index" ;
 
         try {
             $this->load->database();
