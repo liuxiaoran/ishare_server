@@ -138,6 +138,12 @@ class Card_m extends CI_Model
         return $this->query_cards($data, $lng, $lat);
     }
 
+    public function query_sort_distance($keyword, $trade_type, $lng, $lat, $page_num, $page_size)
+    {
+        $data = $this->Owner_location_m->get_near_sort_distance($keyword, $trade_type, $lng, $lat, $page_num, $page_size);
+        return $this->query_cards($data, $lng, $lat);
+    }
+
     public function set_card($row)
     {
         $item = array();
@@ -145,6 +151,7 @@ class Card_m extends CI_Model
         $item['owner_id'] = $row['owner'];
         $item['owner_name'] = $row['nickname'];
         $item['owner_avatar'] = $row['avatar'];
+        $item['gender'] = $row['gender'];
         $item['shop_name'] = $row['shop_name'];
         $item['ware_type'] = $row['ware_type'];
         $item['discount'] = $row['discount'];
@@ -153,8 +160,7 @@ class Card_m extends CI_Model
         $item['shop_longitude'] = $row['shop_longitude'];
         $item['shop_latitude'] = $row['shop_latitude'];
         $item['description'] = $row['description'];
-        $item['img'] = $row['img'];
-        $item['img'] = $this->tans_images($item['img']);
+        $item['img'] = $this->tans_images($row['img']);
         $item['share_type'] = $row['share_type'];
         $item['publish_time'] = $row['time'];
         $item['rating_average'] = $row['rating_average']; // 添加用户的评分信息
@@ -176,7 +182,7 @@ class Card_m extends CI_Model
             $sql = 'SELECT share_items.id, share_items.owner, share_items.shop_name, share_items.ware_type,'
                 . ' share_items.discount, share_items.trade_type, share_items.shop_location,'
                 . ' share_items.shop_longitude, share_items.shop_latitude, share_items.description,'
-                . ' share_items.img, share_items.share_type, share_items.time, users.nickname, users.avatar,'
+                . ' share_items.img, share_items.share_type, share_items.time, users.nickname, users.avatar, users.gender,'
                 . ' share_items.rating_average, share_items.rating_num, share_items.lend_count' // 添加用户的评分信息
                 . ' FROM share_items, users WHERE users.open_id = share_items.owner'
                 . ' AND share_items.id = ' . $id;
@@ -216,7 +222,7 @@ class Card_m extends CI_Model
                 $item['owner_location'] = $location['location'];
                 $item['owner_time'] = $location['time'];
                 $item['owner_distance'] = $location['distance'];
-                // 距离保留两位小数
+                // 距离保留一位小数
                 $item['shop_distance'] = round($item['shop_distance'], 1);
                 $item['owner_distance'] = round($item['owner_distance'], 1);
                 array_push($items, $item);
@@ -227,12 +233,6 @@ class Card_m extends CI_Model
         }
 
         return $items;
-    }
-
-    public function query_sort_distance($keyword, $trade_type, $lng, $lat, $page_num, $page_size)
-    {
-        $data = $this->Owner_location_m->get_near_sort_distance($keyword, $trade_type, $lng, $lat, $page_num, $page_size);
-        return $this->query_cards($data, $lng, $lat);
     }
 
     public function query_card($sql)
@@ -254,8 +254,4 @@ class Card_m extends CI_Model
         return $cards;
     }
 
-    public function trans_image($image_str) {
-        $images = explode(',', $image_str);
-        return json_encode($images);
-    }
 }

@@ -43,10 +43,13 @@ class Request_card_m extends CI_Model
             if ($query->num_rows() > 0){
 
                 foreach($query->result_array() as $row){
-                    $row['distance'] = Distance_Util::get_kilometers_between_points($paras['user_latitude'], $paras['user_longitude'],
-                        $row['user_latitude'], $row['user_longitude']); // 添加距离信息
+                    $row['owner_distance'] = Distance_Util::get_kilometers_between_points($paras['user_latitude'], $paras['user_longitude'],
+                        $row['user_latitude'], $row['user_longitude']);
+                    $row['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['user_latitude'], $paras['user_longitude'],
+                        $row['shop_latitude'], $row['shop_longitude']);// 添加距离信息
                     $this->unset_get($row); // 去除不必要的返回信息
-                    $row['distance'] = round($row['distance'], 1); // 距离保留1位小数
+                    $row['owner_distance'] = round($row['owner_distance'], 1); // 距离保留1位小数
+                    $row['shop_distance'] = round($row['shop_distance'], 1);
                     array_push($results, $row);
                 }
 
