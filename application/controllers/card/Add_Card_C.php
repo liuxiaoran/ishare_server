@@ -63,7 +63,6 @@ class Add_Card_C extends CI_Controller
         $data['description'] = array_key_exists("description", $_POST) ? $_POST["description"] : null;
         $data['img'] = array_key_exists("img", $_POST) ? $_POST["img"] : null;
 //        $data['img'] = $this->trans_image($data['img']);
-        $data['share_type'] = array_key_exists("share_type", $_POST) ? $_POST["share_type"] : null;
 
         return $data;
     }

@@ -70,8 +70,8 @@ class Request_card_m extends CI_Model
     private function rank_distance(& $request_cards)
     {
         usort($request_cards, function($a, $b) {
-            if ($a['distance'] == $b['distance'])   return 0;
-            return ($a['distance'] < $b['distance']) ? -1 : 1;
+            if ($a['owner_distance'] == $b['owner_distance']) return 0;
+            return ($a['owner_distance'] < $b['owner_distance']) ? -1 : 1;
         });
     }
 

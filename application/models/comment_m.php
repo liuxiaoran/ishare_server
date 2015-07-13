@@ -1,49 +1,79 @@
 <?php
+require_once(dirname(__FILE__) . '/../util/Log_Util.php');
 
-class Comment_m extends CI_Model {
-
-    public function __construct() {
-        parent::__construct();
-    }
+/**
+ * Created by PhpStorm.
+ * User: Zhan
+ * Date: 2015/6/20
+ * Time: 11:36
+ */
+class comment_m extends CI_Model
+{
 
     public function add($comment)
     {
-        $add_status = false;
+        $id = 0;
         try {
             $this->load->database();
-            $this->db->insert('user_comment', $comment);
-            if ($this->update_rating($comment)) // 更新该卡记录的分数
-                $add_status = true;
+            $this->db->trans_start();
+            $this->db->insert('comment', $comment);
+            $id = $this->db->insert_id();
+            if ($comment['rating'] != 0) {
+                $sql = 'UPDATE share_items SET rating_average = (rating_num * rating_average + ' . $comment['rating'] . ') / (rating_num + 1)'
+                    . ' AND rating_num = (rating_num + 1) AND comment_num = (comment_num + 1)'
+                    . ' WHERE id = ' . $comment['card_id'];
+            } else {
+                $sql = 'UPDATE share_items SET comment_num = (comment_num + 1)'
+                    . ' WHERE id = ' . $comment['card_id'];
+            }
+
+            Log_Util::log_sql($sql, __CLASS__);
+            $this->db->query($sql);
+            $this->db->trans_complete();
+
+            $status = $this->db->trans_status();
             $this->db->close();
         } catch (Exception $e) {
+            $id = 0;
+            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
             $this->db->close();
         }
-        return $add_status;
+
+        return $status ? $id : 0;
     }
 
-    public function get($paras)
+    public function get($card_id, $page_num, $page_size)
     {
-        $begin_index = ($paras['page_num'] - 1) * $paras['page_size'];
-        $end_index = $paras['page_size'];
-        $sql = " SELECT UC.id, UC.card_id, UC.comment, UC.rating, UC.time, U.nickname, U.avatar, U.gender"
-             . " FROM user_comment AS UC JOIN users AS U ON UC.open_id = U.open_id"
-             . " WHERE UC.card_id = ?"
-             . " LIMIT $begin_index, $end_index";
+        $comments = array();
         try {
             $this->load->database();
-            $query = $this->db->query($sql, array($paras['card_id']));
+            $offset = ($page_num - 1) * $page_size;
+            $sql = 'SELECT c.id, c.card_id, c.comment, c.rating, c.time, u.nickname, u.avatar, u.gender'
+                . ' FROM comment AS c JOIN users AS u ON c.open_id = u.open_id'
+                . ' WHERE c.card_id = ' . $card_id
+                . ' GROUP BY c.open_id ORDER BY time DESC'
+                . " LIMIT $offset, $page_size";
+            Log_Util::log_sql($sql, __CLASS__);
+            $query = $this->db->query($sql);
+            if ($query->num_rows() > 0) {
+                foreach ($query->result_array() as $row) {
+                    array_push($comments, $row);
+                }
+            }
             $this->db->close();
-            return $query->result_array();
         } catch (Exception $e) {
-            return false;
+            $comments = array();
+            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
+            $this->db->close();
         }
+        return $comments;
     }
 
     public function update($paras, $id)
     {
         try {
             $this->load->database();
-            $this->db->update('user_comment', $paras, array('id' => $id));
+            $this->db->update('comment', $paras, array('id' => $id));
             $this->db->close();
             return true;
         } catch (Exception $e) {
@@ -52,41 +82,34 @@ class Comment_m extends CI_Model {
         }
     }
 
-    public function delete($id)
+    public function delete($id, $card_id, $rating)
     {
+        $status = false;
         try {
             $this->load->database();
-            $this->db->delete('user_comment', array('id' => $id));
-            $this->db->close();
-            return true;
-        } catch (Exception $e) {
-            $this->db->close();
-            return false;
-        }
-    }
-
-    private function update_rating($comment)
-    {
-        $select_sql = " SELECT rating_average, rating_num"
-                    . " FROM share_items"
-                    . " WHERE id = ?";
-        $update_sql = " UPDATE share_items"
-                    . " SET rating_average = ?, rating_num = rating_num + 1"
-                    . " WHERE id = ?";
-        try {
-            $query = $this->db->query($select_sql, array($comment['card_id']));
-            if ($query->num_rows() > 0)
-            {
-                $result = $query->row_array();
-                $new_rating = ($result['rating_average'] * $result['rating_num'] + $comment['rating']) / ($result['rating_num'] + 1);
-                $new_rating = round($new_rating, 3);
-
-                $this->db->query($update_sql, array($new_rating, $comment['card_id']));
-                return true;
+            $this->db->trans_start();
+            $this->db->delete('comment', array('id' => $id));
+            if ($rating != 0) {
+                $sql = 'UPDATE share_items SET rating_average = (rating_num * rating_average - ' . $rating . ') / (rating_num - 1)'
+                    . ' AND rating_num = (rating_num - 1) AND comment_num = (comment_num - 1)'
+                    . ' WHERE id = ' . $card_id;
+            } else {
+                $sql = 'UPDATE share_items SET comment_num = (comment_num - 1)'
+                    . ' WHERE id = ' . $card_id;
             }
-            return false;
+
+            Log_Util::log_sql($sql, __CLASS__);
+            $this->db->query($sql);
+            $this->db->trans_complete();
+            $status = $this->db->trans_status();
+
+            $this->db->close();
         } catch (Exception $e) {
-            return false;
+            $status = false;
+            $this->db->close();
         }
+
+        return $status;
     }
+
 }

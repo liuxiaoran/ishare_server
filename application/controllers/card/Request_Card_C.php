@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
 
 class Request_Card_C extends CI_Controller
 {
@@ -14,6 +15,7 @@ class Request_Card_C extends CI_Controller
      */
     public function index()
     {
+        Log_Util::log_param($_POST, __CLASS__);
         $para_name_array = array('open_id', 'shop_name', 'shop_location', 'shop_longitude', 'shop_latitude', 'discount',
                                  'ware_type', 'trade_type', 'description', 'user_location', 'user_longitude', 'user_latitude');
         $paras = $this->get_para($para_name_array);
@@ -170,9 +172,9 @@ class Request_Card_C extends CI_Controller
             $message = 'open_id 不能为空';
         } elseif ($paras['shop_name'] == null) {
             $message = '商店名不能为空';
-        } elseif ($paras['ware_type'] == null) {
-            $message = '商品(卡)类型不能为空';
-        } elseif ($paras['trade_type'] == null) {
+        } //elseif ($paras['ware_type'] == null) {
+        //$message = '商品(卡)类型不能为空';}
+        elseif ($paras['trade_type'] == null) {
             $message = '行业类型不能为空';
         }
 

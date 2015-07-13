@@ -204,17 +204,17 @@ class Owner_location_m extends CI_Model
             $this->load->database();
 
             $offset = ($pageNum - 1) * $pageSize;
-            $sql = "SELECT item_id, longitude, latitude, location, time, count(DISTINCT item_id)"
-                . " FROM owner_location WHERE 1 = 1";
+            $sql = "SELECT O.item_id, O.longitude, O.latitude, O.location, O.time, count(DISTINCT O.item_id)"
+                . " FROM owner_location AS O JOIN share_items AS S ON O.item_id = S.id";
 //            $sql = $sql." AND longitude > ".($lng + $range)." AND longitude < ".($lng - $range);
 //            $sql = $sql." AND latitude < ".($lat + $range)." AND latitude > ".($lat - $range);
             if ($keyword != null) {
-                $sql = $sql . " AND search LIKE '%" . $keyword . "%'";
+                $sql = $sql . " AND O.search LIKE '%" . $keyword . "%'";
             }
             if ($trade_type != -1) {
-                $sql = $sql . " AND trade_type = $trade_type";
+                $sql = $sql . " AND S.trade_type = $trade_type";
             }
-            $sql = $sql . " GROUP BY item_id ORDER BY discount LIMIT $offset, $pageSize";
+            $sql = $sql . " GROUP BY O.item_id ORDER BY S.discount, S.id LIMIT $offset, $pageSize";
 
             Log_Util::log_sql($sql, __CLASS__);
 

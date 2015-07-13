@@ -47,7 +47,7 @@ class Push_Util
                 ->setMessage(M\message('Message Content', 'Message Title', 'Message Type', array()))
 //                ->printJSON()
                 ->send();
-
+  
         } catch (APIRequestException $e) {
             $status = false;
         } catch (APIConnectionException $e) {

@@ -30,8 +30,8 @@ class Query_Card_Sort_Distance_C extends CI_Controller
             $trade_type = array_key_exists("trade_type", $_GET) ? $_GET["trade_type"] : -1;
             $longitude = array_key_exists("longitude", $_GET) ? $_GET["longitude"] : 0;
             $latitude = array_key_exists("latitude", $_GET) ? $_GET["latitude"] : 0;
-            $pageNum = array_key_exists("pageNum", $_GET) ? $_GET["page_num"] : 1;
-            $pageSize = array_key_exists("pageSize", $_GET) ? $_GET["page_size"] : 10;
+            $pageNum = array_key_exists("page_num", $_GET) ? $_GET["page_num"] : 1;
+            $pageSize = array_key_exists("page_size", $_GET) ? $_GET["page_size"] : 10;
 
             $data = $this->Card_m->query_sort_distance($keyword, $trade_type, $longitude, $latitude, $pageNum, $pageSize);
             $ret['status'] = 0;

@@ -1,6 +1,5 @@
 <?php
 require_once(dirname(__FILE__) . '/../util/Log_Util.php');
-
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -74,5 +73,26 @@ class Chat_m extends CI_Model
         }
 
         return $chats;
+    }
+
+    public function get_last_chat($order_id)
+    {
+        $result = null;
+        try {
+            $this->load->database();
+            $sql = 'SELECT content FROM chat WHERE order_id = ' . $order_id . ' ORDER BY time DESC LIMIT 1';
+            $query = $this->db->query($sql);
+
+            if ($query->num_rows() > 0) {
+                $row = $query->row_array();
+                $result = $row['content'];
+            }
+
+            $this->db->close();
+        } catch (Exception $e) {
+            $this->db->close();
+            Log_Util::log_sql($e->getMessage(), __CLASS__);
+        }
+        return $result;
     }
 }

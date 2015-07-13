@@ -121,7 +121,7 @@ class User_m extends CI_Model
         try {
             $this->load->database();
 
-            $sql = 'UPDATE user SET open_id = ' . $open_id;
+            $sql = 'UPDATE users SET open_id = ' . $open_id;
             if ($device_token != 0) {
                 $sql = $sql . ', device_token = ' . $device_token;
             }
@@ -138,11 +138,7 @@ class User_m extends CI_Model
             Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
         }
 
-        if ($result) {
-            return true;
-        } else {
-            return false;
-        }
+        return $result;
     }
 
     public function query_phone_type($open_id)
@@ -221,6 +217,41 @@ class User_m extends CI_Model
             Log_Util::log_sql($e->getMessage(), __CLASS__);
         }
         return $row;
+    }
+
+    public function update_credit($user)
+    {
+        $result = true;
+        try {
+            $this->load->database();
+
+            $sql = "UPDATE users SET open_id = '" . $user['open_id'] . "'";
+            if ($user['real_name'] != null) {
+                $sql = $sql . " , real_name = '" . $user['real_name'] . "'";
+            }
+            if ($user['per_photo'] != null) {
+                $sql = $sql . " , per_photo = '" . $user['per_photo'] . "''";
+            }
+            if ($user['ID'] != null) {
+                $sql = $sql . " , ID = '" . $user['ID'] . "'";
+            }
+            if ($user['work_unit'] != null) {
+                $sql = $sql . " , work_unit = '" . $user['work_unit'] . "'";
+            }
+            if ($user['work_card'] != null) {
+                $sql = $sql . " , work_card = '" . $user['work_card'] . "'";
+            }
+            $sql = $sql . " WHERE open_id = '" . $user['open_id'] . "'";
+            Log_Util::log_sql($sql, __CLASS__);
+
+            $this->db->query($sql);
+            $this->db->close();
+        } catch (Exception $e) {
+            $result = false;
+            $this->db->close();
+            Log_Util::log_sql($e->getMessage(), __CLASS__);
+        }
+        return $result;
     }
 
 }
