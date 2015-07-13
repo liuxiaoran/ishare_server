@@ -20,7 +20,6 @@ use JPush\Exception\APIRequestException;
 
 class Push_Util
 {
-
     protected $app_key = '745a8e1fdefd28e07578b984';
     protected $master_secret = '2d11a066a77aab3662269e80';
     protected $client;
@@ -31,17 +30,21 @@ class Push_Util
         $this->client = new JPushClient($this->app_key, $this->master_secret);
     }
 
-    public function push_android_cast($alias, $title, $text, $open_id, $type, $time)
+    //, md5($chat['to_user']), $chat['nickname'], $chat['content'],$chat['from_user'], $chat['order_id'], $chat['type'], $chat['time']
+    public function chat_push_android_cast($chat)
     {
         $status = true;
         try {
             $result = $this->client->push()
                 ->setPlatform(M\Platform('android'))
-                ->setAudience(M\Audience(M\alias(array($alias))))
+                ->setAudience(M\Audience(M\alias(array(md5($chat['to_user'])))))
                 ->setNotification(M\notification('Hi, JPush',
-                    M\android($text, $title, 1, array("type" => $type, "time" => $time))
+                    M\android($chat['content'], $chat['from_nickname'], 1,
+                        array("from_gender" => $chat['from_gender'], "from_user" => $chat['from_user'],
+                            "from_avatar" => $chat['from_avatar'], "type" => $chat['type'], "time" => $chat['time'],
+                            "order_id" => $chat['order_id'], "card_id" => $chat['card_id'], "card_type" => $chat['card_type']))
                 ))
-                ->setMessage(M\message('Message Content', 'Message Title', 'Message Type', array("open_id" => $open_id, "type" => $type, "time" => $time)))
+                ->setMessage(M\message('Message Content', 'Message Title', 'Message Type', array()))
 //                ->printJSON()
                 ->send();
 
@@ -54,7 +57,7 @@ class Push_Util
         return $status;
     }
 
-    public function push_ios_cast()
+    public function chat_push_ios_cast()
     {
         $status = true;
         try {
@@ -66,6 +69,30 @@ class Push_Util
                 ))
                 ->setMessage(M\message('Message Content', 'Message Title', 'Message Type', array("key1" => "value1", "key2" => "value2")))
                 ->printJSON()
+                ->send();
+
+        } catch (APIRequestException $e) {
+            $status = false;
+        } catch (APIConnectionException $e) {
+            $status = false;
+        }
+
+        return $status;
+    }
+
+    public function push_android_record($open_id, $title, $content, $from_user, $from_gender, $from_avatar, $time, $orderId)
+    {
+        $status = true;
+        try {
+            $result = $this->client->push()
+                ->setPlatform(M\Platform('android'))
+                ->setAudience(M\Audience(M\alias(array(md5($open_id)))))
+                ->setNotification(M\notification('Hi, JPush',
+                    M\android($content, $title, 1,
+                        array("from_gender" => $from_gender, "from_user" => $from_user,
+                            "from_avatar" => $from_avatar, "order_id" => $orderId, "type" => 0, "time" => $time))))
+                ->setMessage(M\message('Message Content', 'Message Title', 'Message Type', array()))
+//                ->printJSON()
                 ->send();
 
         } catch (APIRequestException $e) {
