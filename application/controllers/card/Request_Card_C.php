@@ -44,6 +44,7 @@ class Request_Card_C extends CI_Controller
 
     public function update()
     {
+        Log_Util::log_param($_POST, __CLASS__);
         $para_name_array = array('id', 'shop_name', 'shop_location', 'shop_longitude', 'shop_latitude', 'discount',
                                  'ware_type', 'trade_type', 'description', 'user_location', 'user_longitude', 'user_latitude');
         $paras = $this->get_para($para_name_array);
@@ -88,6 +89,7 @@ class Request_Card_C extends CI_Controller
      */
     public function get()
     {
+        Log_Util::log_param($_POST, __CLASS__);
         $para_name_array = array('user_longitude', 'user_latitude', 'page_num', 'page_size');
         $paras = $this->get_para($para_name_array);
         $error_message = $this->check_para_get($paras);
@@ -117,6 +119,7 @@ class Request_Card_C extends CI_Controller
 
     public function delete()
     {
+        Log_Util::log_param($_POST, __CLASS__);
         $paras = $this->get_para(array('id'));
 
         $response = array('status' => -1, 'message' => '');

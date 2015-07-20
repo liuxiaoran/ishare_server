@@ -22,7 +22,7 @@ class Update_Credit_C extends CI_Controller
 
         $ret = array();
         if ($this->User_m->verify_session_key($_POST)) {
-            $para_name_array = array('open_id', 'real_name', 'per_photo', 'ID', 'work_unit', 'work_card');
+            $para_name_array = array('open_id', 'real_name', 'per_photo', 'id_facade', 'id_back', 'work_unit', 'work_card');
             $para = $this->get_para($para_name_array);
             if ($this->User_m->update_credit($para)) {
                 $ret['status'] = 0;

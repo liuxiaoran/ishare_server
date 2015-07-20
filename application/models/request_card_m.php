@@ -123,4 +123,22 @@ class Request_card_m extends CI_Model
             return false;
         }
     }
+
+    public function get_my_request($open_id) {
+            $results = array();
+            try {
+                $this->load->database();
+                $sql = "SELECT * FROM request_card WHERE open_id = '" . $open_id . "' ORDER BY time DESC";
+                $query = $this->db->query($sql);
+                $this->db->close();
+                if ($query->num_rows() > 0){
+                    foreach($query->result_array() as $row){
+                        array_push($results, $row);
+                    }
+                }
+            } catch (Exception $e) {
+                $this->db->close();
+            }
+            return $results;
+    }
 }

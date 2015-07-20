@@ -59,7 +59,6 @@ class Update_Card_C extends CI_Controller
         $data['shop_location'] = array_key_exists("shop_location", $_POST) ? $_POST["shop_location"] : null;
         $data['description'] = array_key_exists("description", $_POST) ? $_POST["description"] : null;
         $data['img'] = array_key_exists("img", $_POST) ? $_POST["img"] : null;
-        $data['share_type'] = array_key_exists("share_type", $_POST) ? $_POST["share_type"] : null;
 
         return $data;
     }

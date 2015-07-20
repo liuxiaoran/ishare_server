@@ -9,7 +9,7 @@ date_default_timezone_set("PRC");
  */
 class Log_Util
 {
-
+    //在日志里打印时间、函数所在类、函数接受的参数
     public static function log_param($data, $label)
     {
         $message = date("[Y-m-d H:i:s]") . $label . ': ';

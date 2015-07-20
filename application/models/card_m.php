@@ -90,9 +90,7 @@ class Card_m extends CI_Model
             if (array_key_exists('img', $card)) {
                 $sql = $sql . ", img = " . $card['img'];
             }
-            if (array_key_exists('share_type', $card)) {
-                $sql = $sql . ", share_type = " . $card['share_type'];
-            }
+            
             $sql = $sql . " WHERE id = " . $card['id'];
 
             $this->load->database();

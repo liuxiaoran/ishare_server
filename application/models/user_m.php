@@ -15,7 +15,8 @@ class User_m extends CI_Model
         $result = null;
         try {
             $this->load->database();
-            $sql = "select phone, nickname, avatar, gender from users where open_id='" . $open_id . "'";
+            $sql = "select phone, nickname, avatar, gender, real_name, per_photo,"
+                . " id_facade, id_back, work_unit, work_card from users where open_id='" . $open_id . "'";
             Log_Util::log_sql($sql, __CLASS__);
             $query = $this->db->query($sql);
             if ($query->num_rows() > 0) {
@@ -232,8 +233,11 @@ class User_m extends CI_Model
             if ($user['per_photo'] != null) {
                 $sql = $sql . " , per_photo = '" . $user['per_photo'] . "''";
             }
-            if ($user['ID'] != null) {
-                $sql = $sql . " , ID = '" . $user['ID'] . "'";
+            if ($user['id_facade'] != null) {
+                $sql = $sql . " , id_facade = '" . $user['id_facade'] . "'";
+            }
+            if ($user['id_back'] != null) {
+                $sql = $sql . " , id_back = '" . $user['id_back'] . "'";
             }
             if ($user['work_unit'] != null) {
                 $sql = $sql . " , work_unit = '" . $user['work_unit'] . "'";

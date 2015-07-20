@@ -7,10 +7,21 @@
  */
 
 class chat extends CI_Controller {
-    public function _construct(){
+
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model('chat_m');
-        $this->load->view('chat_message');
+    }
+
+    function index(){
+
+        $this->load->helper('url');
+
+        //$data['contact_list'] = $this->chat_m->query_customer(10,"oyIsQtw-b6cNXbEbODDHKBq1SXcw");
+
+        $data['page_title'] = 'Your title';
+        $this->load->view('chat_message',$data);
     }
 
 }

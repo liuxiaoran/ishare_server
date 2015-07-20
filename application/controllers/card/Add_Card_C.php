@@ -55,6 +55,7 @@ class Add_Card_C extends CI_Controller
         $data['shop_name'] = array_key_exists("shop_name", $_POST) ? $_POST["shop_name"] : null;
         $data['ware_type'] = array_key_exists("ware_type", $_POST) ? $_POST["ware_type"] : null;
         $data['discount'] = array_key_exists("discount", $_POST) ? $_POST["discount"] : null;
+        $data['service_charge'] = array_key_exists("service_charge", $_POST)?$_POST['service_charge'] : null;
         $data['trade_type'] = array_key_exists("trade_type", $_POST) ? $_POST["trade_type"] : null;
         $data['shop_location'] = array_key_exists("shop_location", $_POST) ? $_POST["shop_location"] : null;
         $data['shop_longitude'] = array_key_exists("shop_longitude", $_POST) ? $_POST["shop_longitude"] : null;
