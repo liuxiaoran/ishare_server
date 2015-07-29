@@ -68,7 +68,7 @@ class Push_Util
                     M\android('Hi, Android', 'Message Title', 1, array("key1" => "value1", "key2" => "value2"))
                 ))
                 ->setMessage(M\message('Message Content', 'Message Title', 'Message Type', array("key1" => "value1", "key2" => "value2")))
-                ->printJSON()
+//                ->printJSON()
                 ->send();
 
         } catch (APIRequestException $e) {

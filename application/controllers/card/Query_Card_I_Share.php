@@ -36,7 +36,7 @@ class Query_Card_I_Share extends CI_Controller
                 $ret['message'] = $message;
             }
         } else {
-            $ret['status'] = -1;
+            $ret['status'] = 2;
             $ret['message'] = 'not login';
         }
 

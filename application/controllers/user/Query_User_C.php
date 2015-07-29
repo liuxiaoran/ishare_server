@@ -23,7 +23,7 @@ class Query_User_C extends CI_Controller
         $ret = array();
         if ($this->User_m->verify_session_key($_GET)) {
             $open_id = array_key_exists("open_id", $_GET) ? $_GET["open_id"] : null;
-            $user = $this->User_m->query_user($open_id);
+            $user = $this->User_m->query_by_id($open_id);
 
             $ret['status'] = 0;
             $ret['message'] = 'success';

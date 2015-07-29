@@ -16,7 +16,15 @@ class Query_Card_Sort_Composite_C extends CI_Controller
         $this->load->model('User_m');
         $this->load->model('Card_m');
     }
-
+    /**
+     * 综合排序
+     * @param $trade_type 卡的行业类型
+     * @param $longitude 经纬度
+     * @param $latitude
+     * @param $page_num 分页
+     * @param $page_size
+     * @return array 消息的数组
+     */
     public function index()
     {
         Log_Util::log_param($_GET, __CLASS__);
@@ -27,7 +35,7 @@ class Query_Card_Sort_Composite_C extends CI_Controller
             $ret['message'] = 'not login';
             $ret['data'] = null;
         } else {
-            $keyword = array_key_exists("keyword", $_GET) ? $_GET["keyword"] : null;
+            $trade_type = array_key_exists("trade_type", $_GET) ? $_GET["trade_type"] : null;
             $longitude = array_key_exists("longitude", $_GET) ? $_GET["longitude"] : null;
             $latitude = array_key_exists("latitude", $_GET) ? $_GET["latitude"] : null;
             $page_num = array_key_exists("page_num", $_GET) ? $_GET["page_num"] : 1;
@@ -40,7 +48,7 @@ class Query_Card_Sort_Composite_C extends CI_Controller
                 $ret['message'] = $message;
                 $ret['data'] = null;
             } else {
-                $data = $this->Card_m->query_sort_composite($keyword, $longitude, $latitude, $page_num, $page_size);
+                $data = $this->Card_m->query_sort_composite($trade_type, $longitude, $latitude, $page_num, $page_size);
                 $ret['status'] = 0;
                 $ret['message'] = 'success';
                 $ret['data'] = $data;

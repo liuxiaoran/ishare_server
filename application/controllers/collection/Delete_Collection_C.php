@@ -23,11 +23,10 @@ class Delete_Collection_C extends CI_Controller
 
         $ret = array();
         if ($this->User_m->verify_session_key($_POST)) {
-            $para = $this->get_para(array('card_id'));
-            $ids = (Array)json_decode($para['card_id']);
+            $para = $this->get_para(array('collection_id'));
             $message = $this->check_para($para);
             if ($message == null) {
-                if ($this->Collection_m->delete($ids)) {
+                if ($this->Collection_m->delete($para['collection_id'])) {
                     $ret['status'] = 0;
                     $ret['message'] = 'success';
                 } else {

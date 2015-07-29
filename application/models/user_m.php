@@ -1,6 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . '/../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,253 +8,64 @@ require_once(dirname(__FILE__) . '/../util/Log_Util.php');
  */
 class User_m extends CI_Model
 {
-
     public function login($open_id)
     {
-        $result = null;
-        try {
-            $this->load->database();
-            $sql = "select phone, nickname, avatar, gender, real_name, per_photo,"
-                . " id_facade, id_back, work_unit, work_card from users where open_id='" . $open_id . "'";
-            Log_Util::log_sql($sql, __CLASS__);
-            $query = $this->db->query($sql);
-            if ($query->num_rows() > 0) {
-                $result = $query->row_array();
-            }
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
-        }
-
-        return $result;
+        $table_name = 'users';
+        $select = 'phone, nickname, avatar, gender, real_name,'
+            .' per_photo, id_facade, id_back, work_unit, work_card';
+        $where['open_id'] = $open_id;
+        return Base_dao::query_by_id($table_name, $select, $where);
     }
 
     public function get_session_key($open_id)
     {
+        $table_name = 'users';
         $key = md5($open_id . time());
-        try {
-            $this->load->database();
-            $sql = 'update users set session_key = ? where open_id = ?';
-            $this->db->query($sql, array($key, $open_id));
-            $this->db->close();
-        } catch (Exception $e) {
-            $key = null;
-            $this->db->close();
-            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
-        }
-        return $key;
-    }
-
-    public function is_register($phone)
-    {
-        try {
-            $this->load->database();
-            $sql = 'select * from users where phone = ' . $phone;
-            Log_Util::log_sql($sql, __CLASS__);
-            $query = $this->db->query($sql);
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
-        }
-
-        return $query->num_rows() === 0 ? false : true;
+        $param['session_key'] = $key;
+        $where['open_id'] = $open_id;
+        $result = Base_Dao::update($table_name, $param, $where);
+        return $result? $key : null;
     }
 
     public function add_user($user)
     {
-        $status = true;
-        try {
-            $this->load->database();
-            $this->db->insert('users', $user);
-            $this->db->close();
-        } catch (Exception $e) {
-            $status = false;
-            $this->db->close();
-            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
-        }
-
-        return $status;
+        $table_name = 'users';
+        return Base_Dao::insert($table_name, $user);
     }
 
     public function update_user_info($user)
     {
-        $status = true;
-        try {
-            $this->load->database();
-
-            $sql = "UPDATE users SET open_id = '" . $user['open_id'] . "'";
-            if (isset($user['phone_type'])) {
-                $sql = $sql . ", phone_type = '" . $user['phone_type'] . "'";
-            }
-            if (isset($user['phone'])) {
-                $sql = $sql . ", phone = '" . $user['phone'] . "'";
-            }
-            if (isset($user['nickname'])) {
-                $sql = $sql . ", nickname = '" . $user['nickname'] . "'";
-            }
-            if (isset($user['avatar'])) {
-                $sql = $sql . ", avatar = '" . $user['avatar'] . "'";
-            }
-            if (isset($user['gender'])) {
-                $sql = $sql . ", gender = '" . $user['gender'] . "'";
-            }
-            $sql = $sql . " WHERE open_id = '" . $user['open_id'] . "'";
-
-            Log_Util::log_sql($sql, __CLASS__);
-
-            $this->db->query($sql);
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            $status = false;
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-
-        return $status;
-    }
-
-    public function update_user_phone($open_id, $device_token = 0, $phone_type = 0)
-    {
-        $result = true;
-        try {
-            $this->load->database();
-
-            $sql = 'UPDATE users SET open_id = ' . $open_id;
-            if ($device_token != 0) {
-                $sql = $sql . ', device_token = ' . $device_token;
-            }
-            if ($phone_type != 0) {
-                $sql = $sql . ', phone_type = ' . $phone_type;
-            }
-            $sql = $sql . ' WHERE phone = ' . $open_id;
-
-            $this->db->query($sql);
-            $this->db->close();
-        } catch (Exception $e) {
-            $result = false;
-            $this->db->close();
-            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
-        }
-
-        return $result;
-    }
-
-    public function query_phone_type($open_id)
-    {
-        $row = array();
-        try {
-            $this->load->database();
-
-            $sql = "SELECT phone_type FROM users WHERE open_id = '" . $open_id . "'";
-            Log_Util::log_sql($sql, __CLASS__);
-
-            $query = $this->db->query($sql);
-            $row = $query->row_array();
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-
-        return $row['phone_type'];
-    }
-
-    public function query_nickname($open_id)
-    {
-        $row = array();
-        try {
-            $this->load->database();
-
-            $sql = "SELECT nickname FROM users WHERE open_id = '" . $open_id . "'";
-            Log_Util::log_sql($sql, __CLASS__);
-
-            $query = $this->db->query($sql);
-            $row = $query->row_array();
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-
-        return $row['nickname'];
+        $table_name = 'users';
+        $where['open_id'] = $user['open_id'];
+        return Base_Dao::update($table_name, $user, $where);
     }
 
     public function verify_session_key($data)
     {
-        $open_id = array_key_exists("open_id", $data) ? $data["open_id"] : null;
-        $key = array_key_exists("key", $data) ? $data["key"] : null;
-
-        try {
-            $this->load->database();
-            $sql = "select open_id from users where open_id = '" . $open_id . "' and session_key= '" . $key . "'";
-            Log_Util::log_sql($sql, __CLASS__);
-            $result = $this->db->query($sql);
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-
-        return ($result->num_rows() === 1) ? true : false;
-    }
-
-    public function query_user($open_id)
-    {
-        $row = array();
-        try {
-            $this->load->database();
-
-            $sql = "SELECT * FROM users WHERE open_id = '" . $open_id . "'";
-            Log_Util::log_sql($sql, __CLASS__);
-
-            $query = $this->db->query($sql);
-            $row = $query->row_array();
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-        return $row;
+        $table_name = 'users';
+        $select = 'open_id';
+        $where['open_id'] = $data['open_id'];
+        $where['session_key'] = $data['key'];
+        $result = Base_Dao::query_by_id($table_name, $select, $where);
+        return ($result == null) ? false : true;
     }
 
     public function update_credit($user)
     {
-        $result = true;
-        try {
-            $this->load->database();
-
-            $sql = "UPDATE users SET open_id = '" . $user['open_id'] . "'";
-            if ($user['real_name'] != null) {
-                $sql = $sql . " , real_name = '" . $user['real_name'] . "'";
-            }
-            if ($user['per_photo'] != null) {
-                $sql = $sql . " , per_photo = '" . $user['per_photo'] . "''";
-            }
-            if ($user['id_facade'] != null) {
-                $sql = $sql . " , id_facade = '" . $user['id_facade'] . "'";
-            }
-            if ($user['id_back'] != null) {
-                $sql = $sql . " , id_back = '" . $user['id_back'] . "'";
-            }
-            if ($user['work_unit'] != null) {
-                $sql = $sql . " , work_unit = '" . $user['work_unit'] . "'";
-            }
-            if ($user['work_card'] != null) {
-                $sql = $sql . " , work_card = '" . $user['work_card'] . "'";
-            }
-            $sql = $sql . " WHERE open_id = '" . $user['open_id'] . "'";
-            Log_Util::log_sql($sql, __CLASS__);
-
-            $this->db->query($sql);
-            $this->db->close();
-        } catch (Exception $e) {
-            $result = false;
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-        return $result;
+        $table_name = 'users';
+        $where['open_id'] = $user['open_id'];
+        return Base_Dao::update($table_name, $user, $where);
     }
 
+    public function query_by_id($open_id) {
+        $sql = 'SELECT nickname, gender, avatar FROM users WHERE open_id = ?';
+        $param = array($open_id);
+        return Base_Dao::query_one_by_sql($sql, $param);
+    }
+
+    public function query_phone_type($open_id) {
+        $sql = 'SELECT phone_type FROM users WHERE open_id = ?';
+        $param = array($open_id);
+        return Base_Dao::query_one_by_sql($sql, $param);
+    }
 }

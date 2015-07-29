@@ -52,4 +52,31 @@ class Shop_m extends CI_Model
 
         return $shops;
     }
+
+    public function get_shop_image($data) {
+        try {
+            $this->load->database();
+
+            $sql = 'SELECT shop_image FROM shop WHERE LIKE %' + $data['shop_name'] + '%';
+            Log_Util::log_sql($sql, __CLASS__);
+
+//          foreach($key_names as $key) {
+//              $sql = $sql + '';
+//          }
+            $query = $this->db->query($sql);
+            if(count($query->result_array()) == 1) {
+                foreach($query->result_array() as $row) {
+                    $result = $row['shop_image'];
+                }
+            } else {
+
+            }
+            $this->db->close();
+        } catch (Exception $e) {
+            $this->db->close();
+            Log_Util::log_sql_exc($e->getMessage(), __CLASS__);
+        }
+
+        return $result;
+    }
 }

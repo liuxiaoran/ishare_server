@@ -27,9 +27,11 @@ class Add_Location_C extends CI_Controller
             $para = $this->get_para($para_name_array);
             $message = $this->check_para($para);
             if ($message == null) {
-                if ($this->Location_m->add($para)) {
+                $id = $this->Location_m->add($para);
+                if ($id != 0) {
                     $ret['status'] = 0;
                     $ret['message'] = 'success';
+                    $ret['id'] = $id;
                 } else {
                     $ret['status'] = -1;
                     $ret['message'] = 'failure';

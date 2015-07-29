@@ -22,11 +22,14 @@ class Update_Card_C extends CI_Controller
         Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if (!$this->User_m->verify_session_key($_GET)) {
+        if (!$this->User_m->verify_session_key($_POST)) {
             $ret['status'] = 2;
             $ret['message'] = 'not login';
         } else {
-            $card = $this->get_card_data();
+            $param_name = array('id', 'owner', 'shop_name', 'shop_longitude', 'shop_latitude',
+                'ware_type', 'discount', 'service_charge', 'trade_type', 'shop_location',
+                'description', 'img');
+            $card = $this->get_para($param_name, $_POST);
             $message = $this->check_card_data($card);
             if (empty($message)) {
                 if ($this->Card_m->update_card($card)) {
@@ -48,19 +51,17 @@ class Update_Card_C extends CI_Controller
         echo json_encode($ret);
     }
 
-    public function get_card_data()
+    public function get_para($paras_name_array, $para_array)
     {
-        $data = array();
-        $data['owner'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
-        $data['shop_name'] = array_key_exists("shop_name", $_POST) ? $_POST["shop_name"] : null;
-        $data['ware_type'] = array_key_exists("ware_type", $_POST) ? $_POST["ware_type"] : null;
-        $data['discount'] = array_key_exists("discount", $_POST) ? $_POST["discount"] : null;
-        $data['trade_type'] = array_key_exists("trade_type", $_POST) ? $_POST["trade_type"] : null;
-        $data['shop_location'] = array_key_exists("shop_location", $_POST) ? $_POST["shop_location"] : null;
-        $data['description'] = array_key_exists("description", $_POST) ? $_POST["description"] : null;
-        $data['img'] = array_key_exists("img", $_POST) ? $_POST["img"] : null;
-
-        return $data;
+        $result = array();
+        foreach ($paras_name_array as $para_name) {
+            if (isset($para_array[$para_name])) {
+                $result[$para_name] = $para_array[$para_name];
+            } else {
+                $result[$para_name] = null;
+            }
+        }
+        return $result;
     }
 
     public function check_card_data($data)

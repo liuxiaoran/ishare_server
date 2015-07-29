@@ -6,7 +6,7 @@
  * Time: 下午2:35
  */
 
-class chat extends CI_Controller {
+class customerservice extends CI_Controller {
 
     public function __construct()
     {

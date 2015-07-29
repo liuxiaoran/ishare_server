@@ -25,7 +25,8 @@ class Update_User_C extends CI_Controller
             $ret['status'] = 2;
             $ret['message'] = 'not login';
         } else {
-            $user = $this->get_data();
+            $param_names = array('open_id', 'phone', 'nickname', 'avatar', 'gender');
+            $user = $this->get_data($param_names);
             $message = $this->check_data($user);
             if ($message == null) {
                 if ($this->User_m->update_user_info($user)) {
@@ -46,15 +47,15 @@ class Update_User_C extends CI_Controller
         echo json_encode($ret);
     }
 
-    public function get_data()
+    public function get_data($param_names)
     {
-        $user['open_id'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
-        $user['phone'] = array_key_exists("phone", $_POST) ? $_POST["phone"] : null;
-        $user['nickname'] = array_key_exists("nickname", $_POST) ? $_POST["nickname"] : null;
-        $user['avatar'] = array_key_exists("avatar", $_POST) ? $_POST["avatar"] : null;
-        $user['gender'] = array_key_exists("gender", $_POST) ? $_POST["gender"] : null;
-
-        return $user;
+        $result = array();
+        foreach ($param_names as $para_name) {
+            if (isset($_POST[$para_name])) {
+                $result[$para_name] = $_POST[$para_name];
+            }
+        }
+        return $result;
     }
 
     public function check_data($data)

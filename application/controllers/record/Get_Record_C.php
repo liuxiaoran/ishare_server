@@ -1,48 +1,40 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
 /**
  * Created by PhpStorm.
  * User: Zhan
- * Date: 2015/6/26
- * Time: 16:15
+ * Date: 2015/7/24
+ * Time: 17:01
  */
-class Get_Record_C extends CI_Controller
-{
 
-    public function __construct()
-    {
+class Get_Record_C extends CI_Controller {
+
+    public function __construct() {
         parent::__construct();
         $this->load->model('User_m');
         $this->load->model('Record_m');
     }
 
-    public function index()
-    {
+    public function index() {
         Log_Util::log_param($_POST, __CLASS__);
 
-        $ret = array();
         if ($this->User_m->verify_session_key($_POST)) {
-            $para_name_array = array('open_id', 'longitude', 'latitude', 'page_size', 'page_num');
-            $paras = $this->get_para($para_name_array);
+            $paras = $this->get_para(array('id'));
             $message = $this->check_para($paras);
-
             if ($message == null) {
-                $ret['data'] = $this->Record_m->get_order($paras);
-                $ret['status'] = 0;
-                $ret['message'] = 'success';
+                $response['status'] = 0;
+                $response['message'] = 'success';
+                $response['data'] = $this->Record_m->get_by_id($paras['id']);
             } else {
-                $ret['status'] = -1;
-                $ret['message'] = $message;
+                $response['status'] = -1;
+                $response['message'] = 'id不能为空';
             }
         } else {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
+            $response['status'] = 2;
+            $response['message'] = 'not login';
         }
 
-        Log_Util::log_info($ret['data'], __CLASS__);
-
-        echo json_encode($ret);
+        echo json_encode($response);
     }
 
     public function get_para($para_name_array)
@@ -55,7 +47,6 @@ class Get_Record_C extends CI_Controller
             else
                 $result[$value] = null;
         }
-
         return $result;
     }
 
@@ -70,5 +61,4 @@ class Get_Record_C extends CI_Controller
 
         return $message;
     }
-
 }

@@ -23,7 +23,7 @@ class Update_Location_C extends CI_Controller
 
         $ret = array();
         if ($this->User_m->verify_session_key($_POST)) {
-            $para_name_array = array('id', 'longitude', 'latitude', 'location', 'time');
+            $para_name_array = array('id', 'longitude', 'latitude', 'location');
             $para = $this->get_para($para_name_array);
             $message = $this->check_para($para);
 

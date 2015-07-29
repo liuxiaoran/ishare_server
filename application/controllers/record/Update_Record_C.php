@@ -1,84 +1,70 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
 /**
  * Created by PhpStorm.
  * User: Zhan
- * Date: 2015/5/22
- * Time: 11:44
+ * Date: 2015/7/25
+ * Time: 15:16
  */
-class Add_reject_C extends CI_Controller
-{
 
-    public function __construct()
-    {
+class Update_Record_C extends CI_Controller {
+    public function __construct() {
         parent::__construct();
+        $this->load->model('User_m');
         $this->load->model('Record_m');
     }
 
-    public function index()
-    {
-
+    public function index() {
         Log_Util::log_param($_POST, __CLASS__);
+        $response = array();
+        if ($this->User_m->verify_session_key($_POST)) {
+            $para_name_array = array('id', 'status', 'to_id');
+            $param = $this->get_para($para_name_array);
+            $message = $this->check_param($param);
 
-        if ($this->User_m->verify_session_key($_GET)) {
-            $record = $this->get_data();
-            $message = $this->check_data($record);
-
-            if ($message == null) {
-                $this->Record_m->update($record);
-                $ret['status'] = 0;
-                $ret['message'] = 'success';
+            if($message == null) {
+                $record = $this->Record_m->query_by_id($param['id']);
+                $time = date("Y-m-d H:i:s");
+                if($record != null && $this->Record_m->update($param['id'], $record['card_id'], $record['type'], $param['status'], $time)) {
+                    $response['status'] = 0;
+                    $response['message'] = 'success';
+                } else {
+                    $response['status'] = -1;
+                    $response['message'] = '服务器端数据错误！';
+                }
             } else {
-                $ret['status'] = -1;
-                $ret['message'] = $message;
+                $response['status'] = -1;
+                $response['message'] = $message;
             }
         } else {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
+            $response['status'] = 2;
+            $response['message'] = 'not login';
         }
 
-        Log_Util::log_info($ret, __CLASS__);
-
-        echo json_encode($ret);
+        echo json_encode($response);
     }
 
-    public function get_data()
+    public function get_para($para_name_array)
     {
-        $record['id'] = array_key_exists("id", $_POST) ? $_POST["id"] : null;
-        $record['status'] = array_key_exists("status", $_POST) ? $_POST["status"] : null;
+        $result = array();
 
-        if ($record['status'] != null) {
-            switch ($record['status']) {
-                case 3:
-                    $record['cancel_time'] = date("Y-m-d H:i:s");
-                    break;
-                case 2:
-                    $record['apply_time'] = date("Y-m-d H:i:s");
-                    break;
-                case 1:
-                    $record['return_time'] = date("Y-m-d H:i:s");
-                    break;
-                case -1:
-                    $record['lend_time'] = date("Y-m-d H:i:s");
-                    break;
-                case -2:
-                    $record['agree_time'] = date("Y-m-d H:i:s");
-                    break;
-                case -3:
-                    $record['reject_time'] = date("Y-m-d H:i:s");
-                    break;
-            }
+        foreach ($para_name_array as $value) {
+            if (isset($_POST[$value]))
+                $result[$value] = $_POST[$value];
+            else
+                $result[$value] = null;
         }
+
+        return $result;
     }
 
-    public function check_data($record)
+    public function check_param($paras)
     {
         $message = null;
-        if ($record['id'] == null) {
-            $message = 'id 不能为null';
-        } else if ($record['status'] == null) {
-            $message = 'status 不能为null';
+        foreach ($paras as $key => $value) {
+            if ($value == null) {
+                $message = $key . f;
+            }
         }
         return $message;
     }

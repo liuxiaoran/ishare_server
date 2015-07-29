@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -24,9 +25,12 @@ class Get_Service_Chat_C  extends CI_Controller {
         } else {
             $param_name_array = array('user', 'time', 'size');
             $param = $this->get_param($param_name_array);
+            if($param['time'] == null) {
+                $param['time'] = date('Y-m-d H:i:s', time());
+            }
             $message = $this->check_param($param);
             if ($message === null) {
-                $param['time'] = date('Y-m-d H:i:s', time());
+
                 $param['status'] = 0;
                 $ret['data'] = $this->Customer_service_m->get_chat($param['user'], $param['time'], $param['size']);
                 $ret['status'] = 0;
@@ -42,36 +46,13 @@ class Get_Service_Chat_C  extends CI_Controller {
         echo json_encode($ret);
     }
 
-    public function get_avatar_list() {
-        Log_Util::log_param($_POST, __CLASS__);
-
-        $ret = array();
-        $param_name_array = array('size', 'customer_openid');
-        $param = $this->get_param($param_name_array);
-        $message = $this->check_param($param);
-        if ($message === null) {
-            $param['time'] = date('Y-m-d H:i:s', time());
-            $param['status'] = 0;
-            $ret['data'] = $this->Customer_service_m->get_avatar($param['size'], $param['customer_openid']);
-            $ret['status'] = 0;
-            $ret['message'] = 'success';
-        } else {
-            $ret['status'] = -1;
-            $ret['message'] = $message;
-        }
-
-        Log_Util::log_info($ret, __CLASS__);
-
-        echo json_encode($ret);
-    }
-
     public function get_param($param_name_array) {
         $param = array();
         foreach($param_name_array as $param_name) {
             if(isset($_POST[$param_name])) {
                 $param[$param_name] = $_POST[$param_name];
             } else {
-                $param[$param_name] = $_POST[$param_name];
+                $param[$param_name] = null;
             }
         }
         return $param;

@@ -38,7 +38,7 @@
 |
 */
 
-$route['chat'] = "chat";
+$route['customerservice'] = "customerservice";
 $route['default_controller'] = "welcome";
 $route['404_override'] = '';
 

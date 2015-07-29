@@ -60,14 +60,15 @@ class Add_Card_C extends CI_Controller
         $data['shop_location'] = array_key_exists("shop_location", $_POST) ? $_POST["shop_location"] : null;
         $data['shop_longitude'] = array_key_exists("shop_longitude", $_POST) ? $_POST["shop_longitude"] : null;
         $data['shop_latitude'] = array_key_exists("shop_latitude", $_POST) ? $_POST["shop_latitude"] : null;
-        $data['owner_available'] = array_key_exists("owner_available", $_POST) ? $_POST["owner_available"] : null;
         $data['description'] = array_key_exists("description", $_POST) ? $_POST["description"] : null;
         $data['img'] = array_key_exists("img", $_POST) ? $_POST["img"] : null;
+        $data['location_id'] = array_key_exists("location_id", $_POST) ? $_POST["location_id"] : null;
 //        $data['img'] = $this->trans_image($data['img']);
 
         return $data;
     }
 
+    //todo:检查数据类型和折扣，服务费等
     public function check_card_data($data)
     {
         $message = null;

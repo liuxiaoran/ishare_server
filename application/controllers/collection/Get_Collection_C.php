@@ -1,5 +1,5 @@
 <?php
-
+require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -34,7 +34,7 @@ class Get_Collection_C extends CI_Controller
                 $ret['message'] = 'failure';
             }
         } else {
-            $ret['status'] = -2;
+            $ret['status'] = 2;
             $ret['message'] = 'not login';
         }
 

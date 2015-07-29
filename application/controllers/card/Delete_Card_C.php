@@ -16,22 +16,26 @@ class Delete_Card_C extends CI_Controller
         $this->load->model('User_m');
         $this->load->model('Card_m');
     }
-
+    /**
+     * 每次点击一个客户时调用的接口，返回登录起接收的聊天
+     * @param $card_ids 需要删除的卡id
+     * @return array 消息的数组
+     */
     public function index()
     {
-        Log_Util::log_param($_POST, __CLASS__);
+        Log_Util::log_param($_GET, __CLASS__);
 
         $ret = array();
         if (!$this->User_m->verify_session_key($_GET)) {
             $ret['status'] = 2;
             $ret['message'] = 'not login';
         } else {
-            $card_ids = $this->get_card_id();
-            if ($card_ids == null) {
+            $card_id = $_GET['card_id'];
+            if ($card_id == null) {
                 $ret['status'] = -1;
-                $ret['message'] = 'card_ids is null';
+                $ret['message'] = 'card_id is null';
             } else {
-                if ($this->Card_m->deleteCard($card_ids)) {
+                if ($this->Card_m->delete_card($card_id)) {
                     $ret['status'] = 0;
                     $ret['message'] = 'success';
                 } else {
@@ -46,12 +50,4 @@ class Delete_Card_C extends CI_Controller
         echo json_encode($ret);
     }
 
-    public function get_card_id()
-    {
-        if (array_key_exists("card_ids", $_POST)) {
-            return json_decode($_POST("card_ids"));
-        } else {
-            return null;
-        }
-    }
 }

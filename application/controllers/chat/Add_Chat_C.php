@@ -19,7 +19,6 @@ class Add_Chat_C extends CI_Controller
         $this->load->model('Record_m');
     }
 
-
     public function index()
     {
         Log_Util::log_param($_POST, __CLASS__);
@@ -27,16 +26,16 @@ class Add_Chat_C extends CI_Controller
         $ret = array();
         if ($this->User_m->verify_session_key($_POST)) {
             $para_name_array = array('from_user', 'to_user', 'type', 'content',
-                'order_id', 'card_id', 'card_type', 'borrow_id', 'lend_id');
+                'card_id', 'card_type', 'borrow_id', 'lend_id');
             $data = $this->get_para($para_name_array, $_POST);
             $data['time'] = date('Y-m-d H:i:s', time());
 
             $message = $this->check_chat_data($data);
             if ($message === null) {
                 $chat_name_array = array('from_user', 'to_user', 'type', 'content',
-                    'order_id', 'card_id', 'card_type', 'time');
+                    'card_id', 'card_type', 'time');
                 $chat = $this->get_para($chat_name_array, $data);
-                $order = $this->Record_m->is_exist_by_three_id($data['card_id'], $data['card_type'], $data['borrow_id'], $data['lend_id']);
+                $order = $this->Record_m->query_record($data['card_id'], $data['borrow_id'], $data['lend_id'], $data['card_type']);
                 if (!$order) {
                     $record = $this->get_record_data($data);
                     $record['status'] = 0;
@@ -50,7 +49,7 @@ class Add_Chat_C extends CI_Controller
                 if ($chat_id != 0) {
                     $chat['id'] = $chat_id;
                     $chat['to_phone_type'] = $this->User_m->query_phone_type($chat['to_user']);
-                    $user = $this->User_m->query_user($chat['from_user']);
+                    $user = $this->User_m->query_by_id($chat['from_user']);
                     $chat['from_nickname'] = $user['nickname'];
                     $chat['from_gender'] = $user['gender'];
                     $chat['from_avatar'] = $user['avatar'];

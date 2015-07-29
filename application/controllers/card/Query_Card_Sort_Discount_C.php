@@ -1,6 +1,5 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -27,14 +26,13 @@ class Query_Card_Sort_Discount_C extends CI_Controller
             $ret['message'] = 'not login';
             $ret['data'] = null;
         } else {
-            $keyword = array_key_exists("keyword", $_GET) ? $_GET["keyword"] : null;
             $trade_type = array_key_exists("trade_type", $_GET) ? $_GET["trade_type"] : -1;
-            $longitude = array_key_exists("longitude", $_GET) ? $_GET["longitude"] : null;
-            $latitude = array_key_exists("latitude", $_GET) ? $_GET["latitude"] : null;
+            $longitude = array_key_exists("longitude", $_GET) ? $_GET["longitude"] : 0;
+            $latitude = array_key_exists("latitude", $_GET) ? $_GET["latitude"] : 0;
             $page_num = array_key_exists("page_num", $_GET) ? $_GET["page_num"] : 1;
             $page_size = array_key_exists("page_size", $_GET) ? $_GET["page_size"] : 10;
 
-            $data = $this->Card_m->query_sort_discount($keyword, $trade_type, $longitude, $latitude, $page_num, $page_size);
+            $data = $this->Card_m->query_sort_discount($trade_type, $longitude, $latitude, $page_num, $page_size);
             $ret['status'] = 0;
             $ret['message'] = 'success';
             $ret['data'] = $data;

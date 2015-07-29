@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,45 +10,16 @@
 class customer_service_m extends CI_Model {
 
     public function add_chat($chat) {
-        $id = 0;
-        try {
-            $this->load->database();
-            $this->db->insert('customer_service', $chat);
-            $id = $this->db->insert_id();
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-
-        return $id;
+        $table_name = 'customer_service';
+        return Base_Dao::insert($table_name, $chat);
     }
 
     public function get_chat($user, $time, $size)
     {
-        $chats = array();
-        try {
-            $this->load->database();
-
-            $sql = 'SELECT * FROM customer_service';
-            $sql = $sql . " WHERE ((from_user = '" . $user . "') OR (to_user = '" . $user . "'))";
-            if ($time != null) {
-                $sql = $sql . " AND time < '" . $time . "'";
-            }
-            $sql = $sql . " ORDER BY time DESC";
-            $sql = $sql . " LIMIT 0, " . $size;
-            $query = $this->db->query($sql);
-            Log_Util::log_sql($sql, __CLASS__);
-
-            foreach ($query->result_array() as $chat) {
-                array_push($chats, $chat);
-            }
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-        return $chats;
+        $sql = "SELECT * FROM customer_service WHERE ((from_user = ?) OR (to_user = ?))"
+            . " AND time < ? ORDER BY time DESC LIMIT 0, ?";
+        $param = array($user, $user, $time, (int) $size);
+        return Base_Dao::query_by_sql($sql, $param);
     }
 
     /**
@@ -56,28 +28,12 @@ class customer_service_m extends CI_Model {
      * @param $customer_service 客服账户id，设定了默认值为0，调用时可以不用写最后一个参数
      * @return array 消息的数组
      */
-    public function get_avatar( $size, $server_openid )
+    public function get_avatar($size, $server_openid)
     {
-        $customers = array();
-        try {
-            $this->load->database();
-
-            $sql = 'SELECT DISTINCT u.nickname, u.avatar FROM users u, customer_service c WHERE';
-            $sql = $sql . " c.status = 1 AND ( c.to_user = '" . $server_openid . "' AND c.from_user = u.open_id )";
-            $sql = $sql . ' ORDER BY time DESC';
-            $sql = $sql . ' LIMIT 0, ' . $size;
-            $query = $this->db->query($sql);
-            Log_Util::log_sql($sql, __CLASS__);
-
-            foreach ($query->result_array() as $customer) {
-                array_push($customers, $customer);
-            }
-            $this->db->close();
-        } catch (Exception $e) {
-            $this->db->close();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-
-        return $customers;
+        $sql = 'SELECT DISTINCT u.nickname, u.avatar, u.open_id FROM users u, customer_service c WHERE'
+            . ' c.status = 0 AND ( c.to_user = ? AND c.from_user = u.open_id) ORDER BY time DESC'
+            . ' LIMIT 0, ?';
+        $param = array($server_openid,(int) $size);
+        return Base_Dao::query_by_sql($sql, $param);
     }
 }
