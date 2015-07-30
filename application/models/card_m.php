@@ -176,7 +176,7 @@ class Card_m extends CI_Model
     }
 
     public function query($id, $borrow_id, $lend_id) {
-        $sql = 'SELECT s.id, s.owner, s.shop_name, s.ware_type, s.discount, s.trade_type, s.shop_location,'
+        $sql = 'SELECT s.id AS card_id, s.owner, s.shop_name, s.ware_type, s.discount, s.trade_type, s.shop_location,'
             . ' s.shop_longitude, s.shop_latitude, s.description, s.img AS shop_img, s.time, l.open_id AS lend_open_id,'
             . ' l.nickname AS lend_nickname, l.avatar AS lend_avatar, l.gender AS gender, s.rating_average,'
             . ' s.rating_num, s.lend_count, b.open_id AS borrow_open_id, b.nickname AS borrow_name,'
@@ -186,6 +186,7 @@ class Card_m extends CI_Model
         $param = array((int) $id, $lend_id, $borrow_id);
         $result =  Base_Dao::query_one_by_sql($sql, $param);
         $result['shop_img'] = json_decode($result['shop_img']);
+        $result['type'] = 1;
         return $result;
     }
 

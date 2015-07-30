@@ -29,12 +29,11 @@ class Chat_m extends CI_Model
         return Base_Dao::update($table_name, $param, $where);
     }
 
-    public function query($user, $chat, $time, $size)
+    public function query($order_id, $time, $size)
     {
-        $sql = "SELECT * FROM chat WHERE ((from_user = ? AND to_user = ?)"
-            . " OR (from_user = ? AND to_user = ?)) AND time < ? ORDER BY time DESC"
+        $sql = "SELECT * FROM chat WHERE order_id = ? AND time < ? ORDER BY time DESC"
             . " LIMIT 0,?";
-        $param = array($user, $chat, $chat, $user, $time, (int) $size);
+        $param = array((int) $order_id, $time, (int) $size);
         return Base_Dao::query_by_sql($sql, $param);
     }
 

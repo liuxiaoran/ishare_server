@@ -103,7 +103,9 @@ class Request_card_m extends CI_Model
             . ' FROM request_card AS rc, users AS b, users AS l WHERE b.open_id = rc.open_id'
             . ' AND rc.id = ? AND l.open_id = ? AND b.open_id = ?';
         $param = array((int) $id, $lend_id, $borrow_id);
-        return Base_Dao::query_one_by_sql($sql, $param);
+        $result = Base_Dao::query_one_by_sql($sql, $param);
+        $result['type'] = 2;
+        return $result;
     }
 
     public function get_request($id) {

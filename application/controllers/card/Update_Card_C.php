@@ -28,7 +28,7 @@ class Update_Card_C extends CI_Controller
         } else {
             $param_name = array('id', 'owner', 'shop_name', 'shop_longitude', 'shop_latitude',
                 'ware_type', 'discount', 'service_charge', 'trade_type', 'shop_location',
-                'description', 'img');
+                'description', 'img', 'location_id');
             $card = $this->get_para($param_name, $_POST);
             $message = $this->check_card_data($card);
             if (empty($message)) {
