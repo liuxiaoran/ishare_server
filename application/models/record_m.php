@@ -340,7 +340,7 @@ class Record_m extends CI_Model
             . " l.gender AS lend_gender, l.avatar AS lend_avatar,  r.id, r.card_id, r.type, r.status, r.t_agree, r.t_return, r.t_pay, r.t_ver_pay"
             . " FROM record as r, share_items as s, users as b, users as l"
             . " WHERE r.card_id = ? AND r.card_id = s.id AND r.borrow_id = ? AND r.lend_id = ?"
-            . " AND u1.open_id = r.borrow_id AND u2.open_id = r.lend_id "
+            . " AND b.open_id = r.borrow_id AND l.open_id = r.lend_id "
             . " AND status != 4 AND type = 1";
         $param = array($card_id, $borrow_id, $lend_id);
         $result = Base_Dao::query_one_by_sql($sql, $param);
@@ -357,8 +357,8 @@ class Record_m extends CI_Model
             . " b.gender AS borrow_gender, b.avatar AS borrow_avatar, l.open_id AS lend_open_id, l.nickname AS lend_nickname,"
             . " l.gender AS lend_gender, l.avatar AS lend_avatar,  r.id, r.card_id, r.type, r.status, r.t_agree, r.t_return, r.t_pay, r.t_ver_pay"
             . " FROM record as r, request_card as rc, users as b, users as l"
-            . " WHERE r.card_id = ? AND r.card_id = s.id AND r.borrow_id = ? AND r.lend_id = ?"
-            . " AND u1.open_id = r.borrow_id AND u2.open_id = r.lend_id "
+            . " WHERE r.card_id = ? AND r.card_id = rc.id AND r.borrow_id = ? AND r.lend_id = ?"
+            . " AND b.open_id = r.borrow_id AND l.open_id = r.lend_id "
             . " AND status != 4 AND type = 2";
         $param = array($request_id, $borrow_id, $lend_id);
         $result = Base_Dao::query_one_by_sql($sql, $param);

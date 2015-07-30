@@ -14,9 +14,9 @@ class Request_card_m extends CI_Model
             . ' R.shop_latitude, R.time AS publish_time, R.discount, R.ware_type, '
             . ' R.trade_type, R.description, R.user_longitude, R.user_latitude,'
             . ' U.nickname, U.avatar, U.gender,'
-            . ' (POWER(MOD(ABS(longitude - ?),360),2) + POWER(ABS(latitude - ?),2)) AS distance,'
+            . ' (POWER(MOD(ABS(R.user_longitude - ?),360),2) + POWER(ABS(R.user_latitude - ?),2)) AS distance,'
             . ' (POWER(MOD(ABS(shop_longitude - ?),360),2) + POWER(ABS(shop_latitude - ?),2)) AS shop_distance'
-            . ' FROM request_card R, location L, users U'
+            . ' FROM request_card R, users U'
             . ' WHERE R.open_id = U.open_id ORDER BY distance ASC LIMIT ?, ?';
         $offset = $page_size * ($page_num - 1);
         $param = array((float) $longitude, (float) $latitude, (float) $longitude, (float) $latitude, (int) $offset, (int) $page_size);
@@ -95,13 +95,13 @@ class Request_card_m extends CI_Model
     }
 
     public function query($id, $borrow_id, $lend_id) {
-        $sql = 'SELECT rc.id, rc.open_id, rc.shop_name, rc.ware_type, rc.discount, rc.trade_type, rc.shop_location,'
+        $sql = 'SELECT rc.id AS card_id, rc.open_id, rc.shop_name, rc.ware_type, rc.discount, rc.trade_type, rc.shop_location,'
             . ' rc.shop_longitude, rc.shop_latitude, rc.description, rc.time, l.open_id AS lend_open_id,'
-            . ' l.nickname AS lend_nickname, l.avatar AS lend_avatar, l.gender AS gender, s.rating_average,'
-            . ' s.rating_num, s.lend_count, b.open_id AS borrow_open_id, b.nickname AS borrow_name,'
+            . ' l.nickname AS lend_nickname, l.avatar AS lend_avatar, l.gender AS lend_gender,'
+            . ' b.open_id AS borrow_open_id, b.nickname AS borrow_name,'
             . ' b.avatar AS borrow_avatar, b.gender AS borrow_gender'
-            . ' FROM request_card AS rc, users AS b, users AS l WHERE b.open_id = rc.owner'
-            . ' AND s.id = ? AND l.open_id = ? AND b.open_id = ?';
+            . ' FROM request_card AS rc, users AS b, users AS l WHERE b.open_id = rc.open_id'
+            . ' AND rc.id = ? AND l.open_id = ? AND b.open_id = ?';
         $param = array((int) $id, $lend_id, $borrow_id);
         return Base_Dao::query_one_by_sql($sql, $param);
     }

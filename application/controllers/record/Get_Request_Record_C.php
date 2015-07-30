@@ -33,8 +33,8 @@ class Get_Request_Record_C extends CI_Controller
                     $response['message'] = 'success';
                     $response['data'] = $data;
                 } else {
-                    $response['status'] = -1;
-                    $response['message'] = 'failure';
+                    $response['status'] = 1;
+                    $response['message'] = 'no record';
                     $response['data'] = $this->Request_card_m->query($paras['request_id'], $paras['borrow_id'], $paras['lend_id']);
                 }
             }
