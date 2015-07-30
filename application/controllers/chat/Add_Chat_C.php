@@ -45,10 +45,10 @@ class Add_Chat_C extends CI_Controller
                 }
                 $chat_id = $this->Chat_m->add_chat($chat);
 
-
                 if ($chat_id != 0) {
                     $chat['id'] = $chat_id;
-                    $chat['to_phone_type'] = $this->User_m->query_phone_type($chat['to_user']);
+                    $phone = $this->User_m->query_phone_type($chat['to_user']);
+                    $chat['to_phone_type'] = $phone['phone_type'];
                     $user = $this->User_m->query_by_id($chat['from_user']);
                     $chat['from_nickname'] = $user['nickname'];
                     $chat['from_gender'] = $user['gender'];

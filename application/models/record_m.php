@@ -320,17 +320,12 @@ class Record_m extends CI_Model
         return Base_Dao::query_one_by_sql($sql, $param);
     }
 
-    /**
-     * 判断借卡记录中是否存在未完成的借卡记录
-     * @param $card_id
-     * @param $type
-     * @param $borrow_id
-     * @param $lend_id
-     * @return mixed
-     */
     public function query_record($card_id, $borrow_id, $lend_id, $type)
     {
-
+        $sql = ' SELECT id FROM record WHERE card_id = ? AND borrow_id = ?'
+            . ' AND lend_id = ? AND type = ? AND status != 4';
+        $param = array($card_id, $borrow_id, $lend_id, $type);
+        return Base_Dao::query_one_by_sql($sql, $param);
     }
 
     public function query_card_record($card_id, $borrow_id, $lend_id) {
