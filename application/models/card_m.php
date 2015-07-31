@@ -40,7 +40,11 @@ class Card_m extends CI_Model
     public function query_i_share($open_id, $page_num, $page_size)
     {
         $offset = ($page_num - 1) * $page_size;
-        $sql = "SELECT * FROM share_items WHERE owner = ? ORDER BY time LIMIT ?, ?";
+        $sql = "SELECT S.id, S.owner, S.shop_name, S.ware_type, S.discount, S.service_charge, S.trade_type,"
+            . " S.shop_location, S.shop_longitude, S.shop_latitude, S.location_id, L.location AS owner_location,"
+            . " L.longitude AS owner_longitude, L.latitude AS owner_latitude, S.description, S.time, S.img,"
+            . " S.rating_average, S.rating_num, S.comment_num,  S.lend_count FROM share_items S, location L"
+            . " WHERE owner = ? AND S.location_id = L.id ORDER BY time LIMIT ?, ?";
         $param = array($open_id, (int) $offset, (int) $page_size);
         $data =  Base_Dao::query_by_sql($sql, $param);
         $result = array();
@@ -55,7 +59,7 @@ class Card_m extends CI_Model
     {
         $offset = ($page_num - 1) * $page_size;
         $param = array((float) $lng, (float) $lat, (int) $offset, (int) $page_size);
-        $sql = 'SELECT S.id, S.owner, S.shop_name, S.ware_type, S.discount,'
+        $sql = 'SELECT S.id, S.owner, S.shop_name, S.ware_type, S.discount, S.service_charge,'
             . ' S.trade_type, S.shop_location, S.shop_longitude, S.shop_latitude,'
             . ' S.description, S.img, S.time, U.nickname, U.avatar, U.gender,'
             . ' S.rating_average, S.rating_num, S.lend_count, L.longitude,'
@@ -76,7 +80,7 @@ class Card_m extends CI_Model
     public function query_sort_discount($trade_type, $lng, $lat, $page_num, $page_size) {
         $offset = ($page_num - 1) * $page_size;
         $param = array((float) $lng, (float) $lat, (int) $offset, (int) $page_size);
-        $sql = 'SELECT S.id, S.owner, S.shop_name, S.ware_type, S.discount,'
+        $sql = 'SELECT S.id, S.owner, S.shop_name, S.ware_type, S.discount, S.service_charge,'
             . ' S.trade_type, S.shop_location, S.shop_longitude, S.shop_latitude,'
             . ' S.description, S.img, S.time, U.nickname, U.avatar, U.gender,'
             . ' S.rating_average, S.rating_num, S.lend_count, L.longitude, L.latitude, L.location, S.time,'
@@ -99,7 +103,7 @@ class Card_m extends CI_Model
     {
         $offset = ($page_num - 1) * $page_size;
         $param = array((float) $lng, (float) $lat, (int) $offset, (int) $page_size);
-        $sql = 'SELECT S.id, S.owner, S.shop_name, S.ware_type, S.discount,'
+        $sql = 'SELECT S.id, S.owner, S.shop_name, S.ware_type, S.discount, S.service_charge,'
             . ' S.trade_type, S.shop_location, S.shop_longitude, S.shop_latitude,'
             . ' S.description, S.img, S.time, U.nickname, U.avatar , U.gender,'
             . ' S.rating_average, S.rating_num, S.lend_count, L.longitude,'
@@ -129,6 +133,7 @@ class Card_m extends CI_Model
             $card['shop_name'] = $item['shop_name'];
             $card['ware_type'] = $item['ware_type'];
             $card['discount'] = $item['discount'];
+            $card['service_charge'] = $item['service_charge'];
             $card['trade_type'] = $item['trade_type'];
             $card['shop_location'] = $item['shop_location'];
             $card['shop_longitude'] = $item['shop_longitude'];

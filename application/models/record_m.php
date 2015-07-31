@@ -22,7 +22,7 @@ class Record_m extends CI_Model
         return Base_Dao::insert($table_name, $record);
     }
 
-    private function update_lent_count($order_id)
+    public function update_lent_count($order_id)
     {
         $sql = "UPDATE share_items, record"
             . " SET lend_count = lend_count + 1"
@@ -33,7 +33,7 @@ class Record_m extends CI_Model
         return Base_Dao::update_by_sql($sql, $param);
     }
 
-    public function get_order($open_id, $longitude, $latitude, $page_num, $page_size) {
+    public function get_order($open_id, $longitude, $latitude, $page_size, $page_num) {
         $offset = ($page_num - 1) * $page_size;
         $sql = "SELECT R.id, S.shop_name, S.img AS shop_img, S.shop_location,"
             . " S.shop_longitude, S.shop_latitude, S.discount, S.trade_type,"
@@ -59,165 +59,6 @@ class Record_m extends CI_Model
         }
 
         return $result;
-    }
-
-    private function set_result_of_get(& $record, $paras)
-    {
-        $this->set_user_info($record);// 获取借主和卡主的信息
-        $record['shop_img'] = json_decode($record['shop_img']); // 将商店图片转化为json格式
-
-        if ($paras['longitude'] != null && $paras['latitude'] != null) { // 获取店的距离和卡的距离
-            $record['shop_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['shop_latitude'], $record['shop_longitude']);
-            $record['lend_distance'] = Distance_Util::get_kilometers_between_points($paras['latitude'], $paras['longitude'], $record['owner_latitude'], $record['owner_longitude']);
-
-            $record['shop_distance'] = round($record['shop_distance'], 1); // 四舍五入, 保留1位小数
-            $record['lend_distance'] = round($record['lend_distance'], 1);
-        }
-
-        $record['shop_name'] = substr($record['shop_name'], 0, 60); // 截取店名的前20位
-
-        $this->unset_location($record); // 撤销位置信息
-    }
-
-    /**
-     * 设置用户信息
-     * @param $record
-     */
-    private function set_user_info(& $record)
-    {
-        $borrow_id = $record['borrow_id'];
-        $lend_id = $record['lend_id'];
-
-        if (($borrow_user = $this->query_user_by_id($borrow_id)) != false) {
-            $record['borrow_name'] = $borrow_user->nickname;
-            $record['borrow_avatar'] = $borrow_user->avatar;
-        }
-
-        if (($lend_user = $this->query_user_by_id($lend_id)) != false) {
-            $record['lend_name'] = $lend_user->nickname;
-            $record['lend_avatar'] = $lend_user->avatar;
-        }
-    }
-
-    /**
-     * 撤去店的位置信息和卡主的位置信息
-     * @param $record
-     */
-    private function unset_location(& $record)
-    {
-        unset($record['shop_longitude']);
-        unset($record['shop_latitude']);
-        unset($record['owner_longitude']);
-        unset($record['owner_latitude']);
-    }
-
-    public function get_by_id($id)
-    {
-        if (($type = $this->get_type_by_id($id)) == 1) {
-            $select_sql = " SELECT R.id, R.borrow_id, R.lend_id, R.status, R.t_apply, R.t_cancel, R.t_agree, R.t_return, R.t_pay, R.t_ver_pay,"
-                . " S.shop_name, S.ware_type, S.trade_type, S.discount, S.img AS shop_img"
-                . " FROM record AS R JOIN share_items AS S ON R.card_id = S.id"
-                . " WHERE R.id = $id";
-        } elseif ($type == 2) {
-            $select_sql = " SELECT R.id, R.borrow_id, R.lend_id, R.status, R.t_apply, R.t_cancel, R.t_agree, R.t_return, R.t_pay, R.t_ver_pay,"
-                . " C.shop_name, C.ware_type, C.trade_type, C.discount"
-                . " FROM record AS R JOIN request_card AS C ON R.card_id = C.id"
-                . " WHERE R.id = $id";
-        }
-
-        $result = array();
-
-        try {
-            $this->load->database();
-            Log_Util::log_sql($select_sql, __CLASS__);
-            $query = $this->db->query($select_sql);
-            $this->db->close();
-            $result = $query->row_array();
-            if ($type == 1)
-                $result['shop_img'] = json_decode($result['shop_img']); // 将多张图片转为json信息
-            $this->set_user_info($result);
-            return $result;
-        } catch (Exception $e) {
-            $this->db->close();
-            return false;
-        }
-    }
-
-    private function get_type_by_id($id)
-    {
-        $select_sql = " SELECT type"
-            . " FROM record"
-            . " WHERE id = $id";
-
-        try {
-            $this->load->database();
-            $query = $this->db->query($select_sql);
-            $this->db->close();
-            if ($query->num_rows() > 0) {
-                $row = $query->row_array();
-                return $row['type'];
-            }
-        } catch (Exception $e) {
-            $this->db->close();
-        }
-    }
-
-    public function query_records($borrow_id, $lend_id, $type)
-    {
-        $records = array();
-        try {
-            $sql = 'SELECT record.id, record.borrow_id, users.borrow_name, record.lend_id, record.lend_name,'
-                . ' record.card_id, record.status, record.cancel_time, record.apply_time,'
-                . ' record.return_time, record.lend_time, record.agree_time, record.reject_time'
-                . ' share_items.shop_name, share_items.ware_type, share_items.discount,'
-                . ' share_items.trade_type, share_items.shop_location, share_items.shop_longitude,'
-                . ' share_items.shop_latitude, share_items.img, share_items.share_type'
-                . ' FROM record, share_items'
-                . ' WHERE share_items.id = record.card_id';
-
-            if ($borrow_id != null) {
-                $sql = $sql . ' AND record.borrow_id = ' . $borrow_id;
-            }
-            if ($lend_id != null) {
-                $sql = $sql . ' AND record.lend_id = ' . $lend_id;
-            }
-
-            switch ($type) {
-                case 3:
-                    $sql = $sql . ' , cancel_time != NULL';
-                    break;
-                case 2:
-                    $sql = $sql . ' , apply_time != NULL';
-                    break;
-                case 1:
-                    $sql = $sql . ' , return_time != NULL';
-                    break;
-                case -1:
-                    $sql = $sql . ' , lend_time != NULL';
-                    break;
-                case -2:
-                    $sql = $sql . ' , agree_time != NULL';
-                    break;
-                case -3:
-                    $sql = $sql . ' , reject_time != NULL';
-                    break;
-            }
-
-            Log_Util::log_sql($sql, __CLASS__);
-
-            $this->load->database();
-            $query = $this->db->query($sql);
-            $this->db->close();
-            foreach ($query->result_array() as $item) {
-                array_push($records, $item);
-            }
-        } catch (Exception $e) {
-            $this->db->close();
-            $records = array();
-            Log_Util::log_sql($e->getMessage(), __CLASS__);
-        }
-
-        return $records;
     }
 
 //    /**
