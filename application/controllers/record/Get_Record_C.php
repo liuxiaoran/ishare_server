@@ -24,7 +24,7 @@ class Get_Record_C extends CI_Controller {
             if ($message == null) {
                 $response['status'] = 0;
                 $response['message'] = 'success';
-                $response['data'] = $this->Record_m->get_by_id($paras['id']);
+                $response['data'] = $this->Record_m->query_order_by_id($paras['id']);
             } else {
                 $response['status'] = -1;
                 $response['message'] = 'id不能为空';
@@ -40,7 +40,6 @@ class Get_Record_C extends CI_Controller {
     public function get_para($para_name_array)
     {
         $result = array();
-
         foreach ($para_name_array as $value) {
             if (isset($_POST[$value]))
                 $result[$value] = $_POST[$value];

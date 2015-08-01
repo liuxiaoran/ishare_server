@@ -6,7 +6,11 @@
  * Time: 14:42
  */
 
-class Base_Dao {
+class Base_Dao extends CI_Model {
+
+    public function __construct() {
+        parent::__construct();
+    }
 
     public function insert($table_name, $param) {
         $id = 0;

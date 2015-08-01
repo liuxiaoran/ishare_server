@@ -9,17 +9,18 @@ require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
  */
 class Record_m extends CI_Model
 {
+    private $dao;
 
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('Chat_m');
+        $this->dao = new Base_Dao();
     }
 
     public function add($record)
     {
         $table_name = 'record';
-        return Base_Dao::insert($table_name, $record);
+        return $this->dao->insert($table_name, $record);
     }
 
     public function update_lent_count($order_id)
@@ -30,7 +31,7 @@ class Record_m extends CI_Model
             . " AND record.id = ?"
             . " AND record.type = 1";
         $param = array($order_id);
-        return Base_Dao::update_by_sql($sql, $param);
+        return $this->dao->update_by_sql($sql, $param);
     }
 
     public function get_order($open_id, $longitude, $latitude, $page_size, $page_num) {
@@ -47,7 +48,7 @@ class Record_m extends CI_Model
             . " AND (R.borrow_id = ? OR R.lend_id = ?) AND R.id = C.order_id"
             . " GROUP BY R.id ORDER BY t_create DESC, C.time DESC LIMIT ?, ?";
         $param = array($open_id, $open_id, (int) $offset, (int) $page_size);
-        $data =  Base_Dao::query_by_sql($sql, $param);
+        $data =  $this->dao->query_by_sql($sql, $param);
         return $this->order_processing($data, $open_id, $longitude, $latitude);
     }
 
@@ -58,6 +59,20 @@ class Record_m extends CI_Model
             array_push($result, $item);
         }
 
+        return $result;
+    }
+
+    public function query_order_by_id($id)
+    {
+        $sql = " SELECT s.owner, s.shop_name, s.ware_type, s.discount, s.trade_type, s.shop_location, s.img,"
+            . " s.rating_average, s.rating_num, s.lend_count, b.open_id AS borrow_open_id, b.nickname AS borrow_nickname,"
+            . " b.gender AS borrow_gender, b.avatar AS borrow_avatar, l.open_id AS lend_open_id, l.nickname AS lend_nickname,"
+            . " l.gender AS lend_gender, l.avatar AS lend_avatar, r.id, r.card_id, r.type, r.status, r.t_agree, r.t_return, r.t_pay, r.t_ver_pay"
+            . " FROM record as r, share_items as s, users as b, users as l"
+            . " WHERE r.card_id = s.id AND r.borrow_id = b.open_id AND r.lend_id = l.open_id AND r.id = ?";
+        $param = array($id);
+        $result =  $this->dao->query_one_by_sql($sql, $param);
+        $result['img'] = json_decode($result['img']);
         return $result;
     }
 
@@ -120,9 +135,9 @@ class Record_m extends CI_Model
         if($status == 3 && $card_type == 1) {
             $sql_array = array($sql0, $sql1);
             $param_array = array($param0, $param1);
-            $result = Base_Dao::query_for_trans($sql_array, $param_array);
+            $result = $this->dao->query_for_trans($sql_array, $param_array);
         } else {
-            $result = Base_Dao::update_by_sql($sql0, $param0);
+            $result = $this->dao->update_by_sql($sql0, $param0);
         }
 
         return $result;
@@ -158,7 +173,7 @@ class Record_m extends CI_Model
     {
         $sql = "SELECT * FROM record WHERE id = ?";
         $param = array($id);
-        return Base_Dao::query_one_by_sql($sql, $param);
+        return $this->dao->query_one_by_sql($sql, $param);
     }
 
     public function query_record($card_id, $borrow_id, $lend_id, $type)
@@ -166,7 +181,7 @@ class Record_m extends CI_Model
         $sql = ' SELECT id FROM record WHERE card_id = ? AND borrow_id = ?'
             . ' AND lend_id = ? AND type = ? AND status != 4';
         $param = array($card_id, $borrow_id, $lend_id, $type);
-        return Base_Dao::query_one_by_sql($sql, $param);
+        return $this->dao->query_one_by_sql($sql, $param);
     }
 
     public function query_card_record($card_id, $borrow_id, $lend_id) {
@@ -179,7 +194,7 @@ class Record_m extends CI_Model
             . " AND b.open_id = r.borrow_id AND l.open_id = r.lend_id "
             . " AND status != 4 AND type = 1";
         $param = array($card_id, $borrow_id, $lend_id);
-        $result = Base_Dao::query_one_by_sql($sql, $param);
+        $result = $this->dao->query_one_by_sql($sql, $param);
         if($result != null) {
             $result['img'] = json_decode($result['img']);
         }
@@ -197,7 +212,7 @@ class Record_m extends CI_Model
             . " AND b.open_id = r.borrow_id AND l.open_id = r.lend_id "
             . " AND status != 4 AND type = 2";
         $param = array($request_id, $borrow_id, $lend_id);
-        $result = Base_Dao::query_one_by_sql($sql, $param);
+        $result = $this->dao->query_one_by_sql($sql, $param);
         if($result != null) {
             $result['img'] = json_decode($result['img']);
         }

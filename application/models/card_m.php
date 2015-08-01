@@ -10,23 +10,26 @@ require_once(dirname(__FILE__) . '/../util/Distance_Util.php');
 class Card_m extends CI_Model
 {
 
+    private $dao;
+
     public function __construct()
     {
         parent::__construct();
+        $this->dao = new Base_Dao();
     }
 
     function add_card($card)
     {
         $table_name = 'share_items';
         $param = $card;
-        return Base_Dao::insert($table_name, $param);
+        return $this->dao->insert($table_name, $param);
     }
 
     public function delete_card($ids)
     {
         $table_name = 'share_items';
         $param['id'] = $ids;
-        return Base_Dao::delete($table_name, $param);
+        return $this->dao->delete($table_name, $param);
     }
 
     public function update_card($card)
@@ -34,7 +37,7 @@ class Card_m extends CI_Model
         $table_name = 'share_items';
         $update = $card;
         $where['id'] = $card['id'];
-        return Base_Dao::update($table_name, $update, $where);
+        return $this->dao->update($table_name, $update, $where);
     }
 
     public function query_i_share($open_id, $page_num, $page_size)
@@ -46,7 +49,7 @@ class Card_m extends CI_Model
             . " S.rating_average, S.rating_num, S.comment_num,  S.lend_count FROM share_items S, location L"
             . " WHERE owner = ? AND S.location_id = L.id ORDER BY time LIMIT ?, ?";
         $param = array($open_id, (int) $offset, (int) $page_size);
-        $data =  Base_Dao::query_by_sql($sql, $param);
+        $data =  $this->dao->query_by_sql($sql, $param);
         $result = array();
         foreach ($data as $item) {
             $item['img'] = json_decode($item['img']);
@@ -73,7 +76,7 @@ class Card_m extends CI_Model
         }
         $sql = $sql . ' AND U.open_id = S.owner ORDER BY distance LIMIT ?, ?';
 
-        $result = Base_Dao::query_by_sql($sql, $param);
+        $result = $this->dao->query_by_sql($sql, $param);
         return $this->result_processing($result, $lng, $lat);
     }
 
@@ -95,7 +98,7 @@ class Card_m extends CI_Model
 
         Log_Util::log_sql($sql, __CLASS__);
 
-        $result = Base_Dao::query_by_sql($sql, $param);
+        $result = $this->dao->query_by_sql($sql, $param);
         return $this->result_processing($result, $lng, $lat);
     }
 
@@ -117,7 +120,7 @@ class Card_m extends CI_Model
         }
         $sql = $sql . ' AND U.open_id = S.owner ORDER BY distance LIMIT ?, ?';
 
-        $result = Base_Dao::query_by_sql($sql, $param);
+        $result = $this->dao->query_by_sql($sql, $param);
         $result = $this->result_processing($result, $lng, $lat);
         return $result;
     }
@@ -175,7 +178,7 @@ class Card_m extends CI_Model
             . ' FROM share_items, users WHERE users.open_id = share_items.owner'
             . ' AND share_items.id = ?';
         $param = array($id);
-        $result =  Base_Dao::query_one_by_sql($sql, $param);
+        $result =  $this->dao->query_one_by_sql($sql, $param);
         $result['img'] = json_decode($result['img']);
         return $result;
     }
@@ -189,7 +192,7 @@ class Card_m extends CI_Model
             . ' FROM share_items AS s, users AS b, users AS l WHERE l.open_id = s.owner'
             . ' AND s.id = ? AND l.open_id = ? AND b.open_id = ?';
         $param = array((int) $id, $lend_id, $borrow_id);
-        $result =  Base_Dao::query_one_by_sql($sql, $param);
+        $result =  $this->dao->query_one_by_sql($sql, $param);
         $result['shop_img'] = json_decode($result['shop_img']);
         $result['type'] = 1;
         return $result;
@@ -209,7 +212,7 @@ class Card_m extends CI_Model
             . " WHERE S.location_id = L.id AND S.shop_name LIKE CONCAT('%', ?, '%')"
             . " AND U.open_id = S.owner LIMIT ?, ?";
 
-        $result = Base_Dao::query_by_sql($sql, $param);
+        $result = $this->dao->query_by_sql($sql, $param);
         $result = $this->result_processing($result, $lng, $lat);
         return $result;
     }

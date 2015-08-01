@@ -57,8 +57,6 @@ class Update_Card_C extends CI_Controller
         foreach ($paras_name_array as $para_name) {
             if (isset($para_array[$para_name])) {
                 $result[$para_name] = $para_array[$para_name];
-            } else {
-                $result[$para_name] = null;
             }
         }
         return $result;
@@ -67,16 +65,8 @@ class Update_Card_C extends CI_Controller
     public function check_card_data($data)
     {
         $message = null;
-        if ($data['owner'] == null) {
-            $message = 'owner is null';//'手机号不能为空';
-        } else if ($data['shop_name'] == null) {
-            $message = 'shop_name is null';//'店的名称不能为空';
-        } else if ($data['ware_type'] == null) {
-            $message = 'ware_type is null';//'卡的类型不能为空';
-        } else if ($data['trade_type'] == null) {
-            $message = 'trade_type is null';//'行业类型不能为空';
-        } else if ($data['shop_location'] == null) {
-            $message = 'shop_location is null';//'商店位置不能为空';
+        if ($data['id'] == null) {
+            $message = 'id is null';//'手机号不能为空';
         }
 
         return $message;
