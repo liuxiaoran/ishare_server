@@ -33,7 +33,7 @@ class Chat_m extends CI_Model
     public function query($order_id, $time, $size)
     {
         $sql = "SELECT * FROM chat WHERE order_id = ? AND time < ? ORDER BY time DESC LIMIT 0,?";
-        $param = array((int)$order_id, $time, (int)$size);
+        $param = array((int) $order_id, $time, (int) $size);
         return $this->dao->query_by_sql($sql, $param);
     }
 
@@ -41,7 +41,7 @@ class Chat_m extends CI_Model
     {
         $sql = 'SELECT content FROM chat WHERE order_id = ? ORDER BY time DESC LIMIT 1';
         $param = array((int) $order_id);
-        $result = $this->dao->query_by_sql($sql, $param);
+        $result =  $this->dao->query_by_sql($sql, $param);
         return count($result) == 0? null : $result[0];
     }
 }

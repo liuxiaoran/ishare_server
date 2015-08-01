@@ -29,7 +29,7 @@ class Request_card_m extends CI_Model
             . ' WHERE R.open_id = U.open_id ORDER BY distance ASC LIMIT ?, ?';
         $offset = $page_size * ($page_num - 1);
         $param = array((float) $longitude, (float) $latitude, (float) $longitude, (float) $latitude, (int) $offset, (int) $page_size);
-        $result = $this->dao->query_by_sql($sql, $param);
+        $result =  $this->dao->query_by_sql($sql, $param);
         return $this->result_processing($result);
     }
 
@@ -51,7 +51,7 @@ class Request_card_m extends CI_Model
         $param = array((float) $longitude, (float) $latitude, (float) $longitude,
             (float) $latitude, (float) $longitude, (float) $longitude_near,
             (float) $latitude, (float) $latitude_near, (int) $offset, (int) $page_size);
-        $result = $this->dao->query_by_sql($sql, $param);
+        $result =  $this->dao->query_by_sql($sql, $param);
         return $this->result_processing($result);
     }
 

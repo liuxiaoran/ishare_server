@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
+include_once(dirname(__FILE__) . '/../../util/Push_Util.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -8,6 +9,8 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
  */
 
 class Add_Service_Chat_C extends CI_Controller {
+
+    private $ishare = 'oyIsQt8l9QupElMamo7Ww6ixk1FE';
 
     public function __construct() {
         parent::__construct();
@@ -24,12 +27,20 @@ class Add_Service_Chat_C extends CI_Controller {
             $ret['message'] = 'not login';
         } else {
             $param_name_array = array('from_user', 'to_user', 'content');
-            $param = $this->get_param($param_name_array);
-            $message = $this->check_param($param);
+            $chat = $this->get_param($param_name_array);
+            $message = $this->check_param($chat);
             if ($message === null) {
-                $param['time'] = date('Y-m-d H:i:s', time());
-                $param['status'] = 0;
-                if ($this->Customer_service_m->add_chat($param)) {
+                $chat['time'] = date('Y-m-d H:i:s', time());
+                $chat['status'] = 0;
+                $chat_id = $this->Customer_service_m->add_chat($chat);
+                if ($chat_id != 0) {
+                    $chat['id'] = $chat_id;
+
+                    if($chat['from_user'] == $this->ishare) {
+                        $chat['to_phone_type'] = $this->User_m->query_phone_type($chat['to_user']);
+                        $this->send_service_cast($chat);
+                    }
+
                     $ret['status'] = 0;
                     $ret['message'] = 'success';
                 } else {
@@ -68,5 +79,17 @@ class Add_Service_Chat_C extends CI_Controller {
             }
         }
         return $message;
+    }
+
+    public function send_service_cast($chat)
+    {
+        $push = new Push_Util();
+        if ($chat['to_phone_type'] == 1) {
+            $result = $push->push_android_service($chat);
+        } else {
+            $result = $push->push_android_service($chat);
+        }
+
+        $this->update_chat_status($chat['id'], $result);
     }
 }

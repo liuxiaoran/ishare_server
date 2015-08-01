@@ -5,11 +5,10 @@
  * Date: 2015/7/21
  * Time: 14:42
  */
-class Base_Dao extends CI_Model
-{
 
-    public function __construct()
-    {
+class Base_Dao extends CI_Model {
+
+    public function __construct() {
         parent::__construct();
     }
 

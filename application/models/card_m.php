@@ -49,7 +49,7 @@ class Card_m extends CI_Model
             . " S.rating_average, S.rating_num, S.comment_num,  S.lend_count FROM share_items S, location L"
             . " WHERE owner = ? AND S.location_id = L.id ORDER BY time LIMIT ?, ?";
         $param = array($open_id, (int) $offset, (int) $page_size);
-        $data = $this->dao->query_by_sql($sql, $param);
+        $data =  $this->dao->query_by_sql($sql, $param);
         $result = array();
         foreach ($data as $item) {
             $item['img'] = json_decode($item['img']);
@@ -178,7 +178,7 @@ class Card_m extends CI_Model
             . ' FROM share_items, users WHERE users.open_id = share_items.owner'
             . ' AND share_items.id = ?';
         $param = array($id);
-        $result = $this->dao->query_one_by_sql($sql, $param);
+        $result =  $this->dao->query_one_by_sql($sql, $param);
         $result['img'] = json_decode($result['img']);
         return $result;
     }
@@ -192,7 +192,7 @@ class Card_m extends CI_Model
             . ' FROM share_items AS s, users AS b, users AS l WHERE l.open_id = s.owner'
             . ' AND s.id = ? AND l.open_id = ? AND b.open_id = ?';
         $param = array((int) $id, $lend_id, $borrow_id);
-        $result = $this->dao->query_one_by_sql($sql, $param);
+        $result =  $this->dao->query_one_by_sql($sql, $param);
         $result['shop_img'] = json_decode($result['shop_img']);
         $result['type'] = 1;
         return $result;
