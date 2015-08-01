@@ -19,18 +19,16 @@ class Query_Chat_C extends CI_Controller
 
     public function index()
     {
-        Log_Util::log_param($_GET, __CLASS__);
+        Log_Util::log_param($_POST, __CLASS__);
 
         $ret = array();
-        if ($this->User_m->verify_session_key($_GET)) {
-            $user = array_key_exists("user", $_GET) ? $_GET["user"] : null;
-            $chat = array_key_exists("chat", $_GET) ? $_GET["chat"] : null;
-            $time = array_key_exists("time", $_GET) ? $_GET["time"] : null;
-            $size = array_key_exists("size", $_GET) ? $_GET["size"] : null;
-            $message = $this->check_query_data($user, $chat, $time, $size);
+        if ($this->User_m->verify_session_key($_POST)) {
+            $param_names = array("order_id", "time", "size");
+            $params = $this->get_para($param_names);
+            $message = $this->check_para($params);
 
             if ($message === null) {
-                $ret['data'] = $this->Chat_m->query($user, $chat, $time, $size);
+                $ret['data'] = $this->Chat_m->query($params['order_id'], $params['time'], $params['size']);
                 $ret['status'] = 0;
                 $ret['message'] = 'success';
             } else {
@@ -47,18 +45,29 @@ class Query_Chat_C extends CI_Controller
         echo json_encode($ret);
     }
 
-    public function check_query_data($user, $chat, $time, $size)
+    public function get_para($para_name_array)
+    {
+        $result = array();
+
+        foreach ($para_name_array as $value) {
+            if (isset($_POST[$value]))
+                $result[$value] = $_POST[$value];
+            else
+                $result[$value] = null;
+        }
+        return $result;
+    }
+
+    public function check_para($paras)
     {
         $message = null;
-        if ($user === null) {
-            $message = 'user不能为空';
-        } else if ($chat === null) {
-            $message = 'chat不能为空';
-        } else if ($time === null) {
-            $message = 'time不能为空';
-        } else if ($size === null) {
-            $message = 'size不能为空';
+        foreach ($paras as $key => $value) {
+            if ($value == null) {
+                $message = $key . '不能为空';
+            }
         }
+
+        return $message;
     }
 
 }

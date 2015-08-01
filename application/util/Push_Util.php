@@ -33,9 +33,8 @@ class Push_Util
     //, md5($chat['to_user']), $chat['nickname'], $chat['content'],$chat['from_user'], $chat['order_id'], $chat['type'], $chat['time']
     public function chat_push_android_cast($chat)
     {
-        $status = true;
         try {
-            $result = $this->client->push()
+            $status = $this->client->push()
                 ->setPlatform(M\Platform('android'))
                 ->setAudience(M\Audience(M\alias(array(md5($chat['to_user'])))))
                 ->setNotification(M\notification('Hi, JPush',
@@ -59,9 +58,8 @@ class Push_Util
 
     public function chat_push_ios_cast()
     {
-        $status = true;
         try {
-            $result = $this->client->push()
+            $status = $this->client->push()
                 ->setPlatform(M\Platform('android'))
                 ->setAudience(M\Audience(M\alias(array('18811791727'))))
                 ->setNotification(M\notification('Hi, JPush',
@@ -82,9 +80,8 @@ class Push_Util
 
     public function push_android_record($open_id, $title, $content, $from_user, $from_gender, $from_avatar, $time, $orderId)
     {
-        $status = true;
         try {
-            $result = $this->client->push()
+            $status = $this->client->push()
                 ->setPlatform(M\Platform('android'))
                 ->setAudience(M\Audience(M\alias(array(md5($open_id)))))
                 ->setNotification(M\notification('Hi, JPush',

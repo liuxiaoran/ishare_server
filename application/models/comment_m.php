@@ -8,6 +8,14 @@ require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
  */
 class comment_m extends CI_Model
 {
+    private $dao;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->dao = new Base_Dao();
+    }
+
     public function add($comment) {
         $sql0 = 'INSERT INTO comment(card_id, open_id, comment, rating, time) VALUES(?, ?, ? ,?, ?)';
         $param0 = array((int) $comment['card_id'], $comment['open_id'], $comment['comment'], (float) $comment['rating'], $comment['time']);
@@ -19,7 +27,7 @@ class comment_m extends CI_Model
         $param2 = array((int) $comment['card_id']);
         $sql_array = array($sql0, $sql1, $sql2);
         $param_array = array($param0, $param1, $param2);
-        return Base_Dao::query_for_trans($sql_array, $param_array);
+        return $this->dao->query_for_trans($sql_array, $param_array);
     }
 
     public function get($card_id, $page_num, $page_size)
@@ -31,7 +39,7 @@ class comment_m extends CI_Model
             . " LIMIT ?, ?";
         $offset = ($page_num - 1) * $page_size;
         $param = array((int) $card_id, (int) $offset, (int) $page_size);
-        return Base_Dao::query_by_sql($sql, $param);
+        return $this->dao->query_by_sql($sql, $param);
     }
 
     public function update($param, $id)
@@ -39,7 +47,7 @@ class comment_m extends CI_Model
         $table_name = 'comment';
         $update = $param;
         $where['id'] = $id;
-        return Base_Dao::update($table_name, $update, $where);
+        return $this->dao->update($table_name, $update, $where);
     }
 
     public function delete($id, $card_id, $rating)
@@ -54,7 +62,7 @@ class comment_m extends CI_Model
         $param2 = array((int) $card_id);
         $sql_array = array($sql0, $sql1, $sql2);
         $param_array = array($param0, $param1, $param2);
-        return Base_Dao::query_for_trans($sql_array, $param_array);
+        return $this->dao->query_for_trans($sql_array, $param_array);
     }
 
 }

@@ -1,11 +1,20 @@
 <?php
 require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
+
 class Request_card_m extends CI_Model
 {
+    private $dao;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->dao = new Base_Dao();
+    }
+
     public function add($param)
     {
         $table_name = 'request_card';
-        return Base_Dao::insert($table_name, $param);
+        return $this->dao->insert($table_name, $param);
     }
 
     public function get($longitude, $latitude, $page_num, $page_size)
@@ -20,7 +29,7 @@ class Request_card_m extends CI_Model
             . ' WHERE R.open_id = U.open_id ORDER BY distance ASC LIMIT ?, ?';
         $offset = $page_size * ($page_num - 1);
         $param = array((float) $longitude, (float) $latitude, (float) $longitude, (float) $latitude, (int) $offset, (int) $page_size);
-        $result =  Base_Dao::query_by_sql($sql, $param);
+        $result = $this->dao->query_by_sql($sql, $param);
         return $this->result_processing($result);
     }
 
@@ -42,7 +51,7 @@ class Request_card_m extends CI_Model
         $param = array((float) $longitude, (float) $latitude, (float) $longitude,
             (float) $latitude, (float) $longitude, (float) $longitude_near,
             (float) $latitude, (float) $latitude_near, (int) $offset, (int) $page_size);
-        $result =  Base_Dao::query_by_sql($sql, $param);
+        $result = $this->dao->query_by_sql($sql, $param);
         return $this->result_processing($result);
     }
 
@@ -77,21 +86,21 @@ class Request_card_m extends CI_Model
         $table_name = 'request_card';
         $update = $param;
         $where['id'] = $id;
-        return Base_Dao::update($table_name, $update, $where);
+        return $this->dao->update($table_name, $update, $where);
     }
 
     public function delete($id)
     {
         $table_name = 'request_card';
         $where['id'] = $id;
-        return Base_Dao::delete($table_name, $where);
+        return $this->dao->delete($table_name, $where);
     }
 
     public function get_my_request($open_id, $page_num, $page_size) {
         $offset = ($page_num - 1) * $page_size;
         $sql = 'SELECT * FROM request_card WHERE open_id = ? ORDER BY time DESC LIMIT ?, ?';
         $param = array($open_id, (int) $offset, (int) $page_size);
-        return Base_Dao::query_by_sql($sql, $param);
+        return $this->dao->query_by_sql($sql, $param);
     }
 
     public function query($id, $borrow_id, $lend_id) {
@@ -103,12 +112,14 @@ class Request_card_m extends CI_Model
             . ' FROM request_card AS rc, users AS b, users AS l WHERE b.open_id = rc.open_id'
             . ' AND rc.id = ? AND l.open_id = ? AND b.open_id = ?';
         $param = array((int) $id, $lend_id, $borrow_id);
-        return Base_Dao::query_one_by_sql($sql, $param);
+        $result = $this->dao->query_one_by_sql($sql, $param);
+        $result['type'] = 2;
+        return $result;
     }
 
     public function get_request($id) {
         $sql = 'SELECT * FROM request_card WHERE id = ? ORDER BY time DESC';
         $param = array($id);
-        return Base_Dao::query_one_by_sql($sql, $param);
+        return $this->dao->query_one_by_sql($sql, $param);
     }
 }

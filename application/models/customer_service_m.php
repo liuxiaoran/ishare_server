@@ -8,10 +8,17 @@ require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
  */
 
 class customer_service_m extends CI_Model {
+    private $dao;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->dao = new Base_Dao();
+    }
 
     public function add_chat($chat) {
         $table_name = 'customer_service';
-        return Base_Dao::insert($table_name, $chat);
+        return $this->dao->insert($table_name, $chat);
     }
 
     public function get_chat($user, $time, $size)
@@ -19,7 +26,7 @@ class customer_service_m extends CI_Model {
         $sql = "SELECT * FROM customer_service WHERE ((from_user = ?) OR (to_user = ?))"
             . " AND time < ? ORDER BY time DESC LIMIT 0, ?";
         $param = array($user, $user, $time, (int) $size);
-        return Base_Dao::query_by_sql($sql, $param);
+        return $this->dao->query_by_sql($sql, $param);
     }
 
     /**
@@ -34,6 +41,6 @@ class customer_service_m extends CI_Model {
             . ' c.status = 0 AND ( c.to_user = ? AND c.from_user = u.open_id) ORDER BY time DESC'
             . ' LIMIT 0, ?';
         $param = array($server_openid,(int) $size);
-        return Base_Dao::query_by_sql($sql, $param);
+        return $this->dao->query_by_sql($sql, $param);
     }
 }

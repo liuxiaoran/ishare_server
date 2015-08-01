@@ -50,4 +50,6 @@ class Delete_Card_C extends CI_Controller
         echo json_encode($ret);
     }
 
+pub
+
 }

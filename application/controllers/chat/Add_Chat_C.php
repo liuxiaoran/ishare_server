@@ -45,10 +45,10 @@ class Add_Chat_C extends CI_Controller
                 }
                 $chat_id = $this->Chat_m->add_chat($chat);
 
-
                 if ($chat_id != 0) {
                     $chat['id'] = $chat_id;
-                    $chat['to_phone_type'] = $this->User_m->query_phone_type($chat['to_user']);
+                    $phone = $this->User_m->query_phone_type($chat['to_user']);
+                    $chat['to_phone_type'] = $phone['phone_type'];
                     $user = $this->User_m->query_by_id($chat['from_user']);
                     $chat['from_nickname'] = $user['nickname'];
                     $chat['from_gender'] = $user['gender'];
@@ -130,21 +130,6 @@ class Add_Chat_C extends CI_Controller
         }
 
         $this->update_chat_status($chat['id'], $result);
-    }
-
-    public function send_android_uni_cast($chat)
-    {
-        $broadcast = new Android_Cast_Util();
-        $result = $broadcast->sendUnicast($chat['device_token'], $chat['to_user'], $chat['content']);
-        return $result;
-    }
-
-    public function send_ios_uni_cast($chat)
-    {
-        $broadcast = new IOS_Cast_Util();
-        $alert = $chat['from_user'] . ':' . $chat['content'];
-        $result = $broadcast->sendUnicast($chat['device_token'], $alert, '', '');
-        return $result;
     }
 
     public function update_chat_status($id, $result)

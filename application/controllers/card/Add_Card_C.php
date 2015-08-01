@@ -26,9 +26,12 @@ class Add_Card_C extends CI_Controller
             $ret['status'] = 2;
             $ret['message'] = 'not login';
         } else {
-            $data = $this->get_card_data();
+            $param_names = array('owner', 'shop_name', 'ware_type', 'discount',
+                'service_charge', 'trade_type', 'shop_location', 'shop_longitude',
+                'shop_latitude', 'description', 'img', 'location_id');
+            $data = $this->get_param($param_names, $_POST);
             $message = $this->check_card_data($data);
-//            $card = $this->transform_data($data);
+
             if ($message === null) {
                 if ($this->Card_m->add_card($data)) {
                     $ret['status'] = 0;
@@ -43,33 +46,24 @@ class Add_Card_C extends CI_Controller
             }
         }
 
-        Log_Util::log_info($ret, __CLASS__);
-
         echo json_encode($ret);
     }
 
-    public function get_card_data()
+    public function get_param($param_names, $params)
     {
-        $data = array();
-        $data['owner'] = array_key_exists("owner", $_POST) ? $_POST["owner"] : null;
-        $data['shop_name'] = array_key_exists("shop_name", $_POST) ? $_POST["shop_name"] : null;
-        $data['ware_type'] = array_key_exists("ware_type", $_POST) ? $_POST["ware_type"] : null;
-        $data['discount'] = array_key_exists("discount", $_POST) ? $_POST["discount"] : null;
-        $data['service_charge'] = array_key_exists("service_charge", $_POST)?$_POST['service_charge'] : null;
-        $data['trade_type'] = array_key_exists("trade_type", $_POST) ? $_POST["trade_type"] : null;
-        $data['shop_location'] = array_key_exists("shop_location", $_POST) ? $_POST["shop_location"] : null;
-        $data['shop_longitude'] = array_key_exists("shop_longitude", $_POST) ? $_POST["shop_longitude"] : null;
-        $data['shop_latitude'] = array_key_exists("shop_latitude", $_POST) ? $_POST["shop_latitude"] : null;
-        $data['description'] = array_key_exists("description", $_POST) ? $_POST["description"] : null;
-        $data['img'] = array_key_exists("img", $_POST) ? $_POST["img"] : null;
-        $data['location_id'] = array_key_exists("location_id", $_POST) ? $_POST["location_id"] : null;
-//        $data['img'] = $this->trans_image($data['img']);
-
-        return $data;
+        $result = array();
+        foreach ($param_names as $para_name) {
+            if (isset($params[$para_name])) {
+                $result[$para_name] = $params[$para_name];
+            } else {
+                $result[$para_name] = null;
+            }
+        }
+        return $result;
     }
 
     //todo:检查数据类型和折扣，服务费等
-    public function check_card_data($data)
+    public function check_param($data)
     {
         $message = null;
         if ($data['owner'] == null) {
@@ -87,39 +81,4 @@ class Add_Card_C extends CI_Controller
         return $message;
     }
 
-    public function trans_img($img_str)
-    {
-        $result = '';
-
-        $img_str = substr($img_str, 1, sizeof($img_str) - 2);
-        $images = explode(",", $img_str);
-
-        for ($i = 0; $i < sizeof($images); $i++) {
-            $images[$i] = substr($images[$i], 1, sizeof($images[$i]) - 2);
-            if ($i == sizeof($images) - 1) {
-                $result = $result . $images[$i];
-            } else {
-                $result = $result . $images[$i] . ",";
-            }
-
-        }
-
-        return $result;
-    }
-
-    public function trans_image($img_json)
-    {
-        $result = "['";
-        $images = (Array)json_decode($img_json);
-        for ($i = 0; $i < sizeof($images); $i++) {
-            if ($i == sizeof($images) - 1) {
-                $result = $result . $images[$i] . "']";
-            } else {
-                $result = $result . $images[$i] . "',";
-            }
-
-        }
-
-        return $result;
-    }
 }
