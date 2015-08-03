@@ -5,10 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>Bootstrap 101 Template</title>
+    <title>IShare爱享</title>
 
     <!-- Bootstrap -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/chatlist.css" rel="stylesheet" type="text/css">
+    <script language="javascript" src="../js/jquery-2.1.4.js"></script>
+    <script language="javascript" src="../js/jquery.cookie.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -18,7 +21,14 @@
     <![endif]-->
 </head>
 <body>
-<h1>你好，世界！</h1>
+    <div class="frontpage">
+        <div class="nav">
+            <div class="header clearfix">
+
+            </div>
+
+        </div>
+    </div>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>

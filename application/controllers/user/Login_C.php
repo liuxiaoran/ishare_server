@@ -27,10 +27,6 @@ class Login_C extends CI_Controller
             $data = $this->User_m->login($user['open_id']);
             if ($data == null) {
                 $this->User_m->add_user($user);
-                $data['phone'] = null;
-                $data['nickname'] = null;
-                $data['avatar'] = null;
-                $data['gender'] = null;
             }
             $this->User_m->update_user_info($user);
             $data['key'] = $this->User_m->get_session_key($user['open_id']);
