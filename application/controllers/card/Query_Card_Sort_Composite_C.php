@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,13 +10,16 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
  */
 class Query_Card_Sort_Composite_C extends CI_Controller
 {
+    private $param_until;
 
     public function __construct()
     {
         parent::__construct();
         $this->load->model('User_m');
         $this->load->model('Card_m');
+        $this->param_until = new Param_Util();
     }
+
     /**
      * 综合排序
      * @param $trade_type 卡的行业类型
@@ -28,46 +32,25 @@ class Query_Card_Sort_Composite_C extends CI_Controller
     public function index()
     {
         Log_Util::log_param($_GET, __CLASS__);
+        $param_names = array('trade_type', 'longitude', 'latitude', 'page_num', 'page_size');
+        $param_need_names = array('open_id', 'key', 'trade_type', 'longitude', 'latitude', 'page_num', 'page_size');
+        $params = $this->param_until->get_param($param_names, $_GET);
+        $message = $this->param_until->check_param($_GET, $params, $param_need_names);
 
-        $ret = array();
-        if (!$this->User_m->verify_session_key($_GET)) {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
-            $ret['data'] = null;
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $trade_type = array_key_exists("trade_type", $_GET) ? $_GET["trade_type"] : null;
-            $longitude = array_key_exists("longitude", $_GET) ? $_GET["longitude"] : null;
-            $latitude = array_key_exists("latitude", $_GET) ? $_GET["latitude"] : null;
-            $page_num = array_key_exists("page_num", $_GET) ? $_GET["page_num"] : 1;
-            $page_size = array_key_exists("page_size", $_GET) ? $_GET["page_size"] : 10;
-
-            $message = $this->check_data($longitude, $latitude);
-
-            if ($message != null) {
-                $ret['status'] = -1;
-                $ret['message'] = $message;
-                $ret['data'] = null;
+            if (!$this->User_m->verify_session_key($_GET)) {
+                $ret = Ret_Factory::create_ret(2);
             } else {
-                $data = $this->Card_m->query_sort_composite($trade_type, $longitude, $latitude, $page_num, $page_size);
-                $ret['status'] = 0;
-                $ret['message'] = 'success';
-                $ret['data'] = $data;
+                $data = $this->Card_m->query_sort_composite($params['trade_type'],
+                    $params['longitude'], $params['latitude'], $params['page_num'],
+                    $params['page_size']);
+                $ret = Ret_Factory::create_ret(0, null, $data);
             }
         }
-
-        Log_Util::log_info($ret, __CLASS__);
 
         echo json_encode($ret);
     }
 
-    public function check_data($longitude, $latitude)
-    {
-        $msg = null;
-        if ($longitude == null) {
-            $msg = '经度不能为空';
-        } else if ($latitude == null) {
-            $msg = '纬度不能为空';
-        }
-        return $msg;
-    }
 }

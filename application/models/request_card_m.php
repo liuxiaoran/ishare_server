@@ -22,7 +22,7 @@ class Request_card_m extends CI_Model
         $sql = 'SELECT R.id, R.open_id AS owner_id, R.shop_name, R.shop_location, R.shop_longitude,'
             . ' R.shop_latitude, R.time AS publish_time, R.discount, R.ware_type, '
             . ' R.trade_type, R.description, R.user_longitude, R.user_latitude,'
-            . ' U.nickname, U.avatar, U.gender,'
+            . ' U.nickname, U.avatar, U.gender AS requester_gender,'
             . ' (POWER(MOD(ABS(R.user_longitude - ?),360),2) + POWER(ABS(R.user_latitude - ?),2)) AS distance,'
             . ' (POWER(MOD(ABS(shop_longitude - ?),360),2) + POWER(ABS(shop_latitude - ?),2)) AS shop_distance'
             . ' FROM request_card R, users U'

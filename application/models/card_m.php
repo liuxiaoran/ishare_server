@@ -112,7 +112,7 @@ class Card_m extends CI_Model
             . ' S.rating_average, S.rating_num, S.lend_count, L.longitude,'
             . ' L.latitude , L.location , S.time , S.rating_average, S.rating_num, S.lend_count,'
             . ' (POWER(MOD(ABS(longitude - ?),360),2) + POWER(ABS(latitude - ?),2)) AS distance'
-            . ' FROM share_items S, location L, users U '
+            . ' FROM share_items S, location L, users U'
             . ' WHERE S.location_id = L.id';
         if($trade_type != 0) {
             $sql = $sql . ' AND S.trade_type = ?';

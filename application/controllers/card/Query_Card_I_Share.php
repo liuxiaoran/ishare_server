@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,65 +10,36 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
  */
 class Query_Card_I_Share extends CI_Controller
 {
+    private $param_until;
 
     public function __construct()
     {
         parent::__construct();
         $this->load->model('User_m');
         $this->load->model('Card_m');
+        $this->param_until = new Param_Util();
     }
 
     public function index()
     {
         Log_Util::log_param($_POST, __CLASS__);
+        $param_names = array('open_id', 'page_num', 'page_size');
+        $param_need_names = array('open_id', 'key', 'page_num', 'page_size');
+        $params = $this->param_until->get_param($param_names, $_POST);
+        $message = $this->param_until->check_param($_POST, $params, $param_need_names);
 
-        $ret = array();
-        if ($this->User_m->verify_session_key($_POST)) {
-            $para_name_array = array('open_id', 'page_num', 'page_size');
-            $data = $this->get_data($para_name_array);
-            $message = $this->check_data($data);
-
-            if ($message != null) {
-                $ret['status'] = 0;
-                $ret['message'] = 'success';
-                $ret['data'] = $this->Card_m->query_i_share($data['open_id'], $data['page_num'], $data['page_size']);
-            } else {
-                $ret['status'] = -1;
-                $ret['message'] = $message;
-            }
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
+            if (!$this->User_m->verify_session_key($_POST)) {
+                $ret = Ret_Factory::create_ret(2);
+            } else {
+                $data = $this->Card_m->query_i_share($params['open_id'], $params['page_num'], $params['page_size']);
+                $ret = Ret_Factory::create_ret(0, null, $data);
+            }
         }
 
         echo json_encode($ret);
     }
 
-    public function get_data($para_name_array)
-    {
-        $data = array();
-
-        foreach ($para_name_array as $para_name) {
-            $data[$para_name] = $this->input->post($para_name);
-            if ($data[$para_name] === false) {
-                $data[$para_name] = null;
-            }
-        }
-
-        return $data;
-    }
-
-    public function check_data($data)
-    {
-        $message = null;
-        if ($data['open_id'] == null) {
-            $message = 'open_id不能为空';
-        } else if ($data['page_num']) {
-            $message = 'page_num不能为空';
-        } else if ($data['page_size']) {
-            $message = 'page_size不能为空';
-        }
-
-        return $message;
-    }
 }

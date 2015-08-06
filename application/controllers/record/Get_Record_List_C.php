@@ -1,5 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -8,65 +10,35 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
  */
 class Get_Record_List_C extends CI_Controller
 {
+    private $param_until;
 
     public function __construct() {
         parent::__construct();
         $this->load->model('User_m');
         $this->load->model('Record_m');
+        $this->param_until = new Param_Util();
     }
 
     public function index()
     {
         Log_Util::log_param($_POST, __CLASS__);
 
-        $ret = array();
-        if ($this->User_m->verify_session_key($_POST)) {
-            $para_name_array = array('open_id', 'longitude', 'latitude', 'page_size', 'page_num');
-            $paras = $this->get_para($para_name_array);
-            $message = $this->check_para($paras);
+        $param_names = array('open_id', 'longitude', 'latitude', 'page_size', 'page_num');
+        $param_need_names = array('open_id', 'key', 'longitude', 'latitude', 'page_size', 'page_num');
+        $params = $this->param_until->get_param($param_names, $_POST);
+        $message = $this->param_until->check_param($_POST, $params, $param_need_names);
 
-            if ($message == null) {
-                $ret['data'] = $this->Record_m->get_order($paras['open_id'], $paras['longitude'], $paras['latitude'], $paras['page_size'], $paras['page_num']);
-                $ret['status'] = 0;
-                $ret['message'] = 'success';
-            } else {
-                $ret['status'] = -1;
-                $ret['message'] = $message;
-            }
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
+            if (!$this->User_m->verify_session_key($_POST)) {
+                $ret = Ret_Factory::create_ret(2);
+            } else {
+                $data = $this->Record_m->get_order($params['open_id'], $params['longitude'], $params['latitude'], $params['page_size'], $params['page_num']);
+                $ret = Ret_Factory::create_ret(0, null, $data);
+            }
         }
-
-        Log_Util::log_info($ret['data'], __CLASS__);
 
         echo json_encode($ret);
     }
-
-    public function get_para($para_name_array)
-    {
-        $result = array();
-
-        foreach ($para_name_array as $value) {
-            if (isset($_POST[$value]))
-                $result[$value] = $_POST[$value];
-            else
-                $result[$value] = null;
-        }
-
-        return $result;
-    }
-
-    public function check_para($paras)
-    {
-        $message = null;
-        foreach ($paras as $key => $value) {
-            if ($value == null) {
-                $message = $key . '不能为空';
-            }
-        }
-
-        return $message;
-    }
-
 }

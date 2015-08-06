@@ -34,12 +34,13 @@ class Record_m extends CI_Model
         return $this->dao->update_by_sql($sql, $param);
     }
 
-    public function get_order($open_id, $longitude, $latitude, $page_size, $page_num) {
+    public function get_order($open_id, $longitude, $latitude, $page_size, $page_num)
+    {
         $offset = ($page_num - 1) * $page_size;
         $sql = "SELECT R.id, S.shop_name, S.img AS shop_img, S.shop_location,"
             . " S.shop_longitude, S.shop_latitude, S.discount, S.trade_type,"
             . " R.status, R.borrow_id, UB.nickname AS borrow_name, UB.gender AS borrow_gender,"
-            . " UB.avatar AS borrow_gender, R.lend_id, UL.nickname AS lend_name,"
+            . " UB.avatar AS borrow_avatar, R.lend_id, UL.nickname AS lend_name,"
             . " UL.gender AS lend_gender, UL.avatar AS lend_avatar,"
             . " R.t_apply, R.t_agree, R.t_return, R.t_pay, R.t_ver_pay, R.t_cancel, R.type AS card_type,"
             . " C.content AS last_chat, C.time AS last_chat_time"
@@ -48,7 +49,7 @@ class Record_m extends CI_Model
             . " AND (R.borrow_id = ? OR R.lend_id = ?) AND R.id = C.order_id"
             . " GROUP BY R.id ORDER BY t_create DESC, C.time DESC LIMIT ?, ?";
         $param = array($open_id, $open_id, (int) $offset, (int) $page_size);
-        $data =  $this->dao->query_by_sql($sql, $param);
+        $data = $this->dao->query_by_sql($sql, $param);
         return $this->order_processing($data, $open_id, $longitude, $latitude);
     }
 
@@ -71,7 +72,7 @@ class Record_m extends CI_Model
             . " FROM record as r, share_items as s, users as b, users as l"
             . " WHERE r.card_id = s.id AND r.borrow_id = b.open_id AND r.lend_id = l.open_id AND r.id = ?";
         $param = array($id);
-        $result =  $this->dao->query_one_by_sql($sql, $param);
+        $result = $this->dao->query_one_by_sql($sql, $param);
         $result['img'] = json_decode($result['img']);
         return $result;
     }
@@ -121,11 +122,6 @@ class Record_m extends CI_Model
 //        return $result;
 //    }
 
-    /**
-     * 更新该借卡记录的状态, 并更改时间
-     * @param $record
-     * @return bool
-     */
     public function update($id, $card_id, $card_type, $status, $time)
     {
         $sql0 = $this->get_update_sql($status);

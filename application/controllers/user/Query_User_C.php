@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,32 +10,33 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
  */
 class Query_User_C extends CI_Controller
 {
+    private $param_until;
 
     public function __construct()
     {
         parent::__construct();
         $this->load->model('User_m');
+        $this->param_until = new Param_Util();
     }
 
     public function index()
     {
         Log_Util::log_param($_GET, __CLASS__);
+        $param_names = array('open_id');
+        $param_need_names = array('open_id', 'key');
+        $params = $this->param_until->get_param($param_names, $_GET);
+        $message = $this->param_until->check_param($_GET, $params, $param_need_names);
 
-        $ret = array();
-        if ($this->User_m->verify_session_key($_GET)) {
-            $open_id = array_key_exists("open_id", $_GET) ? $_GET["open_id"] : null;
-            $user = $this->User_m->query_by_id($open_id);
-
-            $ret['status'] = 0;
-            $ret['message'] = 'success';
-            $ret['data'] = $user;
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
-            $ret['data'] = null;
+            if (!$this->User_m->verify_session_key($_GET)) {
+                $ret = Ret_Factory::create_ret(2);
+            } else {
+                $data = $this->User_m->query_by_id($params['open_id']);
+                $ret = Ret_Factory::create_ret(0, null, $data);
+            }
         }
-
-        Log_Util::log_info($ret, __CLASS__);
 
         echo json_encode($ret);
     }

@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -10,65 +11,40 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
 class Update_Card_C extends CI_Controller
 {
 
+    private $param_until;
+
     public function __construct()
     {
         parent::__construct();
         $this->load->model('User_m');
         $this->load->model('Card_m');
+        $this->param_until = new Param_Util();
     }
 
     public function index()
     {
         Log_Util::log_param($_POST, __CLASS__);
+        $param_names = array('id', 'owner', 'shop_name', 'shop_longitude',
+            'shop_latitude', 'ware_type', 'discount', 'service_charge',
+            'trade_type', 'shop_location', 'description', 'img', 'location_id');
+        $param_need_names = array('open_id', 'key');
+        $params = $this->param_until->get_param($param_names, $_POST);
+        $message = $this->param_until->check_param($_POST, $params, $param_need_names);
 
-        $ret = array();
-        if (!$this->User_m->verify_session_key($_POST)) {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $param_name = array('id', 'owner', 'shop_name', 'shop_longitude', 'shop_latitude',
-                'ware_type', 'discount', 'service_charge', 'trade_type', 'shop_location',
-                'description', 'img', 'location_id');
-            $card = $this->get_para($param_name, $_POST);
-            $message = $this->check_card_data($card);
-            if (empty($message)) {
-                if ($this->Card_m->update_card($card)) {
-                    $ret['status'] = 0;
-                    $ret['message'] = 'success';
-                } else {
-                    $ret['status'] = -1;
-                    $ret['message'] = 'exe sql error';
-                }
+            if (!$this->User_m->verify_session_key($_POST)) {
+                $ret = Ret_Factory::create_ret(2);
             } else {
-                $ret = array('status' => -1, "message" => $message);
-                $ret['status'] = -1;
-                $ret['message'] = $message;
+                if ($this->Card_m->update_card($params)) {
+                    $ret = Ret_Factory::create_ret(0);
+                } else {
+                    $ret = Ret_Factory::create_ret(-2);
+                }
             }
         }
-
-        Log_Util::log_info($ret, __CLASS__);
 
         echo json_encode($ret);
-    }
-
-    public function get_para($paras_name_array, $para_array)
-    {
-        $result = array();
-        foreach ($paras_name_array as $para_name) {
-            if (isset($para_array[$para_name])) {
-                $result[$para_name] = $para_array[$para_name];
-            }
-        }
-        return $result;
-    }
-
-    public function check_card_data($data)
-    {
-        $message = null;
-        if ($data['id'] == null) {
-            $message = 'id is null';//'手机号不能为空';
-        }
-
-        return $message;
     }
 }

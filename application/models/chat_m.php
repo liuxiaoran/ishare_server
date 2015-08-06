@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,17 +10,21 @@ require_once(dirname(__FILE__) . '/../util/Base_Dao.php');
 class Chat_m extends CI_Model
 {
     private $dao;
+    private $param_util;
 
     public function __construct()
     {
         parent::__construct();
         $this->dao = new Base_Dao();
+        $this->param_util = new Param_Util();
     }
 
     public function add_chat($chat)
     {
         $table_name = 'chat';
-        return $this->dao->insert($table_name, $chat);
+        $chat_names = array('from_user', 'to_user', 'type', 'content', 'card_id', 'card_type', 'time');
+        $param = $this->param_util->get_param($chat_names, $chat);
+        return $this->dao->insert($table_name, $param);
     }
 
     public function update_status($id, $status)

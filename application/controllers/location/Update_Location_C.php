@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,67 +10,38 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
  */
 class Update_Location_C extends CI_Controller
 {
+    private $param_until;
 
     public function __construct()
     {
         parent::__construct();
         $this->load->model('User_m');
         $this->load->model('Location_m');
+        $this->param_until = new Param_Util();
     }
 
     public function index()
     {
         Log_Util::log_param($_POST, __CLASS__);
+        $param_names = array('id', 'longitude', 'latitude', 'location');
+        $param_need_names = array('open_id', 'key', 'id');
+        $params = $this->param_until->get_param($param_names, $_POST);
+        $message = $this->param_until->check_param($_POST, $params, $param_need_names);
 
-        $ret = array();
-        if ($this->User_m->verify_session_key($_POST)) {
-            $para_name_array = array('id', 'longitude', 'latitude', 'location');
-            $para = $this->get_para($para_name_array);
-            $message = $this->check_para($para);
-
-            if ($message == null) {
-                if ($this->Location_m->update($para, $para['id'])) {
-                    $ret['status'] = 0;
-                    $ret['message'] = 'success';
-                } else {
-                    $ret['status'] = -1;
-                    $ret['message'] = 'failure';
-                }
-            } else {
-                $ret['status'] = -1;
-                $ret['message'] = $message;
-            }
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $ret['status'] = -2;
-            $ret['message'] = 'not login';
+            if (!$this->User_m->verify_session_key($_POST)) {
+                $ret = Ret_Factory::create_ret(2);
+            } else {
+                if ($this->Location_m->update($params, $params['id'])) {
+                    $ret = Ret_Factory::create_ret(0);
+                } else {
+                    $ret = Ret_Factory::create_ret(-2);
+                }
+            }
         }
 
         echo json_encode($ret);
-    }
-
-    private function get_para($para_name_array)
-    {
-        $result = array();
-
-        foreach ($para_name_array as $para_name) {
-            if (isset($_POST[$para_name])) {
-                $result[$para_name] = $_POST[$para_name];
-            } else {
-                $result[$para_name] = null;
-            }
-        }
-
-        return $result;
-    }
-
-    public function check_para($para)
-    {
-        $message = null;
-        foreach ($para as $key => $value) {
-            if ($value == null) {
-                $message = $key . '不能为空';
-            }
-        }
-        return $message;
     }
 }

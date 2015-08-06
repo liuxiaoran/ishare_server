@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -12,7 +13,7 @@ class Get_Token_C extends CI_Controller
     private $access_key;
     private $secret_key;
     private $bucket_name;
-    private $verify_Util;
+    private $param_until;
 
     public function __construct($access_key = 'Dfd-oTYu60HK8l9YB0mH3H2gaoDHIswiyc7vW04M',
                                 $secret_key = 'kaKDYivGveyZzvyGh3LaR3rT9dM0gYG2hBc5YqgS',
@@ -23,36 +24,29 @@ class Get_Token_C extends CI_Controller
         $this->access_key = $access_key;
         $this->secret_key = $secret_key;
         $this->bucket_name = $bucket_name;
+        $this->param_until = new Param_Util();
     }
 
     public function index()
     {
         Log_Util::log_param($_GET, __CLASS__);
+        $param_names = array('qiniu_key');
+        $param_need_names = array('open_id', 'key', 'qiniu_key');
+        $params = $this->param_until->get_param($param_names, $_GET);
+        $message = $this->param_until->check_param($_POST, $params, $param_need_names);
 
-        $ret = array();
-        if ($this->User_m->verify_session_key($_GET)) {
-            $qiniu_key = $this->get_data();
-            $message = $this->check_data($qiniu_key);
-            if ($message == null) {
-                $data = $this->sign_with_data($this->get_put_policy($qiniu_key));//$this->qiniu_token($put_policy);//
-                $ret['token'] = $data;
-                $ret['status'] = 0;
-                $ret['message'] = 'exe sql success';
-            } else {
-                $ret['status'] = -1;
-                $ret['message'] = $message;
-            }
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $ret['status'] = 2;
-            $ret['message'] = 'not login';
+            if (!$this->User_m->verify_session_key($_POST)) {
+                $ret = Ret_Factory::create_ret(2);
+            } else {
+                $data['token'] = $this->sign_with_data($this->get_put_policy($params['qiniu_key']));//$this->qiniu_token($put_policy);//
+                $ret = Ret_Factory::create_ret(0, null, $data);
+            }
         }
 
         echo json_encode($ret);
-    }
-
-    public function get_data()
-    {
-        return array_key_exists("qiniu_key", $_GET) ? $_GET["qiniu_key"] : null;
     }
 
     public function get_put_policy($qiniu_key, $expires = 3600)
@@ -61,15 +55,6 @@ class Get_Token_C extends CI_Controller
         $data['scope'] = $this->bucket_name . ':' . $qiniu_key;
 
         return json_encode($data);
-    }
-
-    public function check_data($put_policy)
-    {
-        $message = null;
-        if ($put_policy == null) {
-            $message = 'put_policy不能为空';
-        }
-        return $message;
     }
 
     public function qiniu_encode($str) // URLSafeBase64Encode

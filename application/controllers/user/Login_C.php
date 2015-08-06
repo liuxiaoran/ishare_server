@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
-
+require_once(dirname(__FILE__) . '/../../util/Param_Util.php');
+require_once(dirname(__FILE__) . '/../../util/Ret_Factory.php');
 /**
  * Created by PhpStorm.
  * User: Zhan
@@ -9,60 +10,35 @@ require_once(dirname(__FILE__) . '/../../util/Log_Util.php');
  */
 class Login_C extends CI_Controller
 {
+    private $param_until;
 
     public function __construct()
     {
         parent::__construct();
         $this->load->model('User_m');
+        $this->param_until = new Param_Util();
     }
 
     public function index()
     {
         Log_Util::log_param($_POST, __CLASS__);
 
-        $ret = array();
-        $user = $this->get_user_data();
-        $message = $this->check_user_data($user);
-        if ($message == null) {
-            $data = $this->User_m->login($user['open_id']);
-            if ($data == null) {
-                $this->User_m->add_user($user);
-                $data['phone'] = null;
-                $data['nickname'] = null;
-                $data['avatar'] = null;
-                $data['gender'] = null;
-            }
-            $this->User_m->update_user_info($user);
-            $data['key'] = $this->User_m->get_session_key($user['open_id']);
-            $ret['status'] = 0;
-            $ret['message'] = 'success';
-            $ret['data'] = $data;
+        $param_names = array('open_id', 'phone_type');
+        $param_need_names = array('open_id', 'phone_type');
+        $params = $this->param_until->get_param($param_names, $_POST);
+        $message = $this->param_until->check_param($_POST, $params, $param_need_names);
+
+        if ($message != null) {
+            $ret = Ret_Factory::create_ret(-1, $message);
         } else {
-            $ret['status'] = -1;
-            $ret['message'] = $message;
+            $data = $this->User_m->login($params['open_id']);
+            $this->User_m->update_user_info($params);
+            $data['key'] = $this->User_m->get_session_key($params['open_id']);
+            if ($data == null) {
+                $this->User_m->add_user($params);
+            }
+            $ret = Ret_Factory::create_ret(0, null, $data);
         }
-
-        Log_Util::log_info($ret, __CLASS__);
-
         echo json_encode($ret);
-    }
-
-    public function get_user_data()
-    {
-        $user['open_id'] = array_key_exists("open_id", $_POST) ? $_POST["open_id"] : null;
-        $user['phone_type'] = array_key_exists("phone_type", $_POST) ? $_POST["phone_type"] : null;
-
-        return $user;
-    }
-
-    public function check_user_data($user)
-    {
-        $message = null;
-        if ($user['open_id'] == null) {
-            $message = 'open_id 不能为空';
-        } else if ($user['phone_type'] == null) {
-            $message = 'phone_type 不能为空';
-        }
-        return $message;
     }
 }
