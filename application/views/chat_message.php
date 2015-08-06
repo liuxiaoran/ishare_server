@@ -97,7 +97,7 @@
     function refresh() {
         $.ajax({
             type: 'POST',
-            url: 'http://123.57.229.77/index.php/service/Get_Avatar_List_C',
+            url: 'http://192.168.1.122:8002/index.php/service/Get_Avatar_List_C',
             dataType: 'json',
             data: {'size': 10, 'server_openid': 'oyIsQt8l9QupElMamo7Ww6ixk1FE'},
             success: function (json) {
@@ -119,7 +119,7 @@
     function refresh_chat(customer_openid,customer_avatar){
         $.ajax({
             type: 'POST',
-            url: 'http://123.57.229.77/index.php/service/Get_Service_Chat_C/index',
+            url: 'http://192.168.1.122:8002/index.php/service/Get_Service_Chat_C/index',
             dataType: 'json',
             data: {'size': 20, 'user': customer_openid,'open_id':'oyIsQt8l9QupElMamo7Ww6ixk1FE','key':'efc62ff7634432978a00489df029979c'},
             success: function (json) {
@@ -151,7 +151,7 @@
         if ("" != $("#edit_area").text()) {
             $.ajax({
                 type: 'POST',
-                url: 'http://123.57.229.77/index.php/service/Add_Service_Chat_C/index',
+                url: 'http://192.168.1.122:8002/index.php/service/Add_Service_Chat_C/index',
                 dataType: 'json',
                 data: {
                     'from_user': 'oyIsQt8l9QupElMamo7Ww6ixk1FE',
@@ -178,7 +178,7 @@
     function set_cookie(){
         $.ajax({
             type: 'POST',
-            url: 'http://123.57.229.77/index.php/service/Get_Service_Info_C/index',
+            url: 'http://192.168.1.122:8002/index.php/service/Get_Service_Info_C/index',
             dataType: 'json',
             data: {'user_openid': 'oyIsQt8l9QupElMamo7Ww6ixk1FE'},
             success: function (json) {

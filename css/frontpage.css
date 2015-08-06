@@ -1,3 +1,16 @@
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+.clearfix {
+    display: inline-block;
+}
+.clearfix {
+    display: block;
+}
 .frontpage{
     font: 12px/1.3 Arial,Microsoft YaHei;
     _font-family: simsun;
@@ -6,7 +19,7 @@
 
 .frontpage .nav{
     box-shadow: 0 0 1px 0 rgba(0,0,0,0.3),0 0 6px 2px rgba(0,0,0,0.15);
-    background: rgba(255,255,255,0.94);
+    background: rgba(53,53,53,0.94);
     position: fixed;
     _position: absolute;
     top: 0;
@@ -14,13 +27,95 @@
     z-index: 9999;
     width: 100%;
     height: 48px;
-    border-top: 2px solid #fa7d3c;
-    background: #fff;
+    border-bottom: 2px solid #e03984;
 }
 
-.frontpage .header{
+.nav .header{
     position: relative;
     width: 1280px;
     height: 48px;
     margin: 0 auto;
+}
+
+.nav .logo{
+    float: left;
+    position: relative;
+    width: 80px;
+    height: 48px;
+    left: auto;
+    top: auto;
+    margin: 0;
+    background: none;
+}
+
+.nav .logo .box{
+    width: 80px;
+    height: 48px;
+    cursor: pointer;
+    position: absolute;
+    left: -50px;
+    top: 1px;
+}
+
+.nav .logo .box .img{
+    display: block;
+    margin-left: 50px;
+    width: 80px;
+    height: 44px;
+    cursor: pointer;
+    background: url("../images/logo.png") no-repeat 0 40%;
+    background-size: auto 44px;
+}
+
+.nav .tag {
+    float: left;
+    margin: 11px 20px 11px 0;
+}
+
+.nav .tag_list li {
+    float: left;
+    display: inline;
+    position: relative;
+    max-width: 139px\0;
+    margin-left: 100px;
+    font-size: 14px;
+}
+
+.nav .tag_text{
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.nav a.tag_text:hover,.nav a:hover .tag_text,.nav a.current .tag_text {
+    color: #ea5497;
+}
+
+em{
+    font-style: normal;
+    font-weight: normal;
+}
+
+.swiper-container {
+    width: 1425px;
+    height: 600px;
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+
+    /* Center slide text vertically */
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
 }
